@@ -1,0 +1,4184 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07111f">
+<title>AI Lab — مختبر الوكلاء</title>
+
+<style>
+:root{
+  --bg:#07111f;
+  --panel:#0c1929;
+  --panel2:#102238;
+  --panel3:#142b45;
+  --text:#eef6ff;
+  --muted:#8ea4bb;
+  --border:rgba(255,255,255,.09);
+  --primary:#4f8cff;
+  --primary2:#765cff;
+  --green:#22c55e;
+  --red:#ef4444;
+  --orange:#f59e0b;
+  --shadow:0 20px 60px rgba(0,0,0,.35);
+  --radius:16px;
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+  width:100%;
+  height:100%;
+  margin:0;
+  overflow:hidden;
+  background:var(--bg);
+  color:var(--text);
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+button,input,textarea,select{
+  font:inherit;
+}
+
+button{
+  cursor:pointer;
+}
+
+.app{
+  height:100dvh;
+  width:100%;
+  display:flex;
+}
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+.sidebar{
+  width:300px;
+  height:100%;
+  flex-shrink:0;
+  background:#081522;
+  border-left:1px solid var(--border);
+  display:flex;
+  flex-direction:column;
+  z-index:100;
+}
+
+.brand{
+  padding:18px;
+  border-bottom:1px solid var(--border);
+}
+
+.brand-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.logo{
+  width:42px;
+  height:42px;
+  border-radius:13px;
+  display:grid;
+  place-items:center;
+  background:linear-gradient(135deg,var(--primary),var(--primary2));
+  box-shadow:0 8px 25px rgba(79,140,255,.25);
+  font-size:19px;
+}
+
+.brand strong{
+  font-size:15px;
+}
+
+.brand small{
+  display:block;
+  color:var(--muted);
+  margin-top:5px;
+  font-size:11px;
+}
+
+.side-section{
+  padding:14px;
+  border-bottom:1px solid var(--border);
+}
+
+.section-title{
+  color:var(--muted);
+  font-size:10px;
+  font-weight:700;
+  margin-bottom:9px;
+}
+
+.characters{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+}
+
+.character{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  padding:8px;
+  border:1px solid transparent;
+  border-radius:12px;
+}
+
+.character:hover{
+  background:var(--panel2);
+  border-color:var(--border);
+}
+
+.avatar{
+  width:38px;
+  height:38px;
+  border-radius:11px;
+  display:grid;
+  place-items:center;
+  color:white;
+  font-weight:800;
+  flex-shrink:0;
+}
+
+.character-info{
+  min-width:0;
+}
+
+.character-name{
+  font-size:12px;
+  font-weight:700;
+}
+
+.character-role{
+  color:var(--muted);
+  font-size:10px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.side-bottom{
+  margin-top:auto;
+  padding:12px;
+  padding-bottom:calc(12px + var(--safe-bottom));
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px;
+}
+
+/* =========================================================
+   MAIN
+========================================================= */
+
+.main{
+  flex:1;
+  min-width:0;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  position:relative;
+}
+
+.topbar{
+  height:64px;
+  flex-shrink:0;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:0 15px;
+  background:rgba(7,17,31,.88);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  z-index:20;
+}
+
+.top-left,
+.top-right{
+  display:flex;
+  align-items:center;
+  gap:7px;
+}
+
+.menu{
+  display:none;
+}
+
+.title-icon{
+  width:36px;
+  height:36px;
+  border-radius:11px;
+  display:grid;
+  place-items:center;
+  background:rgba(79,140,255,.12);
+}
+
+.title h1{
+  margin:0;
+  font-size:14px;
+}
+
+.title small{
+  display:block;
+  color:var(--muted);
+  font-size:9px;
+  margin-top:3px;
+}
+
+.speaker{
+  width:42px;
+  height:42px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  background:var(--panel);
+  color:var(--muted);
+  position:relative;
+  display:grid;
+  place-items:center;
+}
+
+.speaker.active{
+  color:#fff;
+  background:rgba(34,197,94,.13);
+  border-color:rgba(34,197,94,.5);
+}
+
+.speaker.active::after{
+  content:"ACTIVE";
+  position:absolute;
+  bottom:-10px;
+  font-size:7px;
+  font-weight:800;
+  color:var(--green);
+}
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+.statusbar{
+  min-height:44px;
+  flex-shrink:0;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:7px 15px;
+  border-bottom:1px solid var(--border);
+  background:rgba(12,25,41,.75);
+}
+
+.status-dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#64748b;
+}
+
+.status-dot.ok{
+  background:var(--green);
+}
+
+.status-dot.error{
+  background:var(--red);
+}
+
+.status-text{
+  flex:1;
+  min-width:0;
+  color:var(--muted);
+  font-size:10px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+/* =========================================================
+   CHAT
+========================================================= */
+
+.chat-area{
+  flex:1;
+  min-height:0;
+  position:relative;
+}
+
+.chat{
+  width:100%;
+  height:100%;
+  overflow-y:auto;
+  overflow-x:hidden;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  padding:24px max(10px,calc((100% - 920px)/2));
+  scroll-behavior:smooth;
+}
+
+.chat::-webkit-scrollbar{
+  width:5px;
+}
+
+.chat::-webkit-scrollbar-thumb{
+  background:#263b55;
+  border-radius:20px;
+}
+
+.empty{
+  min-height:100%;
+  display:grid;
+  place-items:center;
+  text-align:center;
+  padding:30px;
+}
+
+.empty-box{
+  max-width:500px;
+}
+
+.empty-logo{
+  width:72px;
+  height:72px;
+  border-radius:23px;
+  display:grid;
+  place-items:center;
+  margin:auto auto 15px;
+  background:linear-gradient(
+    135deg,
+    rgba(79,140,255,.14),
+    rgba(118,92,255,.14)
+  );
+  font-size:30px;
+}
+
+.empty h2{
+  margin:0 0 8px;
+  font-size:18px;
+}
+
+.empty p{
+  margin:0;
+  color:var(--muted);
+  line-height:1.9;
+  font-size:12px;
+}
+
+/* =========================================================
+   MESSAGE
+========================================================= */
+
+.message{
+  display:flex;
+  align-items:flex-start;
+  gap:9px;
+  margin-bottom:19px;
+  animation:messageIn .2s ease;
+}
+
+@keyframes messageIn{
+  from{
+    opacity:0;
+    transform:translateY(6px);
+  }
+  to{
+    opacity:1;
+    transform:none;
+  }
+}
+
+.message-body{
+  max-width:min(800px,calc(100% - 48px));
+  min-width:0;
+}
+
+.meta{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  margin-bottom:5px;
+}
+
+.sender{
+  font-size:11px;
+  font-weight:800;
+}
+
+.role{
+  color:var(--muted);
+  font-size:9px;
+}
+
+.bubble{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:15px;
+  padding:12px 14px;
+  box-shadow:0 10px 35px rgba(0,0,0,.15);
+}
+
+.content{
+  font-size:12px;
+  line-height:1.9;
+  overflow-wrap:anywhere;
+}
+
+.content p{
+  margin:0 0 9px;
+}
+
+.content p:last-child{
+  margin-bottom:0;
+}
+
+.content ul,
+.content ol{
+  padding-right:22px;
+}
+
+.content pre{
+  direction:ltr;
+  text-align:left;
+  overflow:auto;
+  background:#050b13;
+  padding:11px;
+  border-radius:9px;
+}
+
+.content code{
+  direction:ltr;
+}
+
+.actions{
+  display:flex;
+  gap:5px;
+  margin-top:8px;
+}
+
+.icon-btn{
+  width:31px;
+  height:31px;
+  border-radius:9px;
+  border:1px solid var(--border);
+  background:rgba(255,255,255,.025);
+  color:var(--muted);
+  display:grid;
+  place-items:center;
+}
+
+.icon-btn:hover{
+  color:#fff;
+  background:var(--panel2);
+}
+
+/* =========================================================
+   AUDIO
+========================================================= */
+
+.audio{
+  display:none;
+  margin-top:8px;
+  padding:9px;
+  border-radius:11px;
+  background:#07111d;
+  border:1px solid var(--border);
+  align-items:center;
+  gap:7px;
+}
+
+.audio.open{
+  display:flex;
+}
+
+.audio-play{
+  width:34px;
+  height:34px;
+  border:0;
+  border-radius:9px;
+  background:var(--primary);
+  color:#fff;
+  display:grid;
+  place-items:center;
+  flex-shrink:0;
+}
+
+.audio-range{
+  flex:1;
+  min-width:50px;
+}
+
+.audio-speed{
+  width:55px;
+  border:1px solid var(--border);
+  background:var(--panel2);
+  color:#fff;
+  border-radius:7px;
+  font-size:9px;
+  padding:5px;
+}
+
+.audio-state{
+  color:var(--muted);
+  font-size:8px;
+  white-space:nowrap;
+}
+
+/* =========================================================
+   TYPING
+========================================================= */
+
+.typing{
+  display:flex;
+  gap:5px;
+}
+
+.typing i{
+  width:6px;
+  height:6px;
+  background:#8295a9;
+  border-radius:50%;
+  animation:typing 1s infinite;
+}
+
+.typing i:nth-child(2){
+  animation-delay:.15s;
+}
+
+.typing i:nth-child(3){
+  animation-delay:.3s;
+}
+
+@keyframes typing{
+  0%,100%{opacity:.25;transform:none}
+  50%{opacity:1;transform:translateY(-4px)}
+}
+
+/* =========================================================
+   SCROLL BUTTON
+========================================================= */
+
+.scroll-button{
+  position:absolute;
+  left:50%;
+  bottom:15px;
+  transform:translate(-50%,15px);
+  width:43px;
+  height:43px;
+  border-radius:50%;
+  border:1px solid var(--border);
+  background:#102238;
+  color:#fff;
+  box-shadow:var(--shadow);
+  opacity:0;
+  pointer-events:none;
+  transition:.2s;
+  z-index:10;
+}
+
+.scroll-button.show{
+  opacity:1;
+  transform:translate(-50%,0);
+  pointer-events:auto;
+}
+
+.new-count{
+  position:absolute;
+  top:-5px;
+  right:-5px;
+  min-width:17px;
+  height:17px;
+  padding:0 4px;
+  border-radius:20px;
+  background:var(--primary);
+  font-size:8px;
+  display:none;
+  place-items:center;
+}
+
+/* =========================================================
+   COMPOSER
+========================================================= */
+
+.composer{
+  flex-shrink:0;
+  padding:9px 12px calc(9px + var(--safe-bottom));
+  background:rgba(7,17,31,.95);
+  border-top:1px solid var(--border);
+}
+
+.tools{
+  display:flex;
+  gap:6px;
+  overflow-x:auto;
+  scrollbar-width:none;
+  margin-bottom:7px;
+}
+
+.tools::-webkit-scrollbar{
+  display:none;
+}
+
+.btn,
+.select,
+.input{
+  min-height:35px;
+  border-radius:9px;
+  border:1px solid var(--border);
+  background:var(--panel);
+  color:var(--text);
+  padding:7px 10px;
+  outline:none;
+  font-size:10px;
+}
+
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+}
+
+.btn:hover{
+  background:var(--panel2);
+}
+
+.btn-primary{
+  border-color:transparent;
+  background:linear-gradient(135deg,var(--primary),var(--primary2));
+}
+
+.btn-danger{
+  color:#ff9b9b;
+  background:rgba(239,68,68,.08);
+}
+
+.btn-green{
+  color:#8af0ae;
+  background:rgba(34,197,94,.1);
+  border-color:rgba(34,197,94,.25);
+}
+
+.composer-row{
+  display:flex;
+  gap:7px;
+}
+
+.message-input{
+  flex:1;
+  min-width:0;
+  border:1px solid var(--border);
+  background:var(--panel);
+  color:#fff;
+  border-radius:13px;
+  padding:11px 13px;
+  outline:none;
+  resize:none;
+  min-height:45px;
+  max-height:140px;
+  font-size:12px;
+}
+
+.message-input:focus{
+  border-color:rgba(79,140,255,.5);
+}
+
+.send{
+  width:48px;
+  min-height:45px;
+  padding:0;
+}
+
+.send.stop{
+  background:var(--red);
+}
+
+/* =========================================================
+   DRAWER
+========================================================= */
+
+.overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.62);
+  backdrop-filter:blur(4px);
+  opacity:0;
+  pointer-events:none;
+  transition:.2s;
+  z-index:300;
+}
+
+.overlay.show{
+  opacity:1;
+  pointer-events:auto;
+}
+
+.drawer{
+  position:absolute;
+  top:0;
+  bottom:0;
+  right:0;
+  width:min(410px,92vw);
+  background:#0a1727;
+  border-left:1px solid var(--border);
+  transform:translateX(105%);
+  transition:.25s cubic-bezier(.2,.8,.2,1);
+  display:flex;
+  flex-direction:column;
+  box-shadow:-20px 0 70px rgba(0,0,0,.45);
+}
+
+.overlay.show .drawer{
+  transform:none;
+}
+
+.drawer-header{
+  min-height:62px;
+  padding:0 14px;
+  border-bottom:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.drawer-title{
+  font-weight:800;
+  font-size:14px;
+}
+
+.drawer-body{
+  flex:1;
+  overflow:auto;
+  padding:14px;
+}
+
+.form-group{
+  margin-bottom:13px;
+}
+
+.label{
+  display:block;
+  color:var(--muted);
+  font-size:10px;
+  margin-bottom:6px;
+}
+
+.form-input{
+  width:100%;
+  border:1px solid var(--border);
+  background:#07111d;
+  color:#fff;
+  border-radius:9px;
+  padding:10px;
+  outline:none;
+  font-size:11px;
+}
+
+textarea.form-input{
+  min-height:110px;
+  resize:vertical;
+}
+
+.char-card{
+  padding:11px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:#07111d;
+  margin-bottom:7px;
+}
+
+.char-actions{
+  display:flex;
+  gap:6px;
+  margin-top:8px;
+}
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+.toast{
+  position:fixed;
+  left:50%;
+  bottom:90px;
+  transform:translate(-50%,15px);
+  padding:10px 14px;
+  border-radius:10px;
+  background:#13263c;
+  border:1px solid var(--border);
+  box-shadow:var(--shadow);
+  color:#fff;
+  font-size:10px;
+  opacity:0;
+  pointer-events:none;
+  transition:.2s;
+  z-index:500;
+  max-width:90vw;
+  text-align:center;
+}
+
+.toast.show{
+  opacity:1;
+  transform:translate(-50%,0);
+}
+
+.toast.error{
+  border-color:rgba(239,68,68,.35);
+}
+
+.toast.success{
+  border-color:rgba(34,197,94,.35);
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media(max-width:850px){
+
+  .sidebar{
+    position:fixed;
+    right:0;
+    top:0;
+    bottom:0;
+    width:min(330px,88vw);
+    transform:translateX(105%);
+    transition:.25s;
+    box-shadow:-20px 0 70px rgba(0,0,0,.5);
+  }
+
+  .sidebar.open{
+    transform:none;
+  }
+
+  .menu{
+    display:grid;
+  }
+
+  .title-icon{
+    display:none;
+  }
+
+  .topbar{
+    height:58px;
+    padding:0 9px;
+  }
+
+  .title h1{
+    font-size:12px;
+  }
+
+  .title small{
+    display:none;
+  }
+
+  .statusbar{
+    padding:6px 9px;
+    min-height:39px;
+  }
+
+  .chat{
+    padding:15px 8px 20px;
+  }
+
+  .message{
+    gap:7px;
+    margin-bottom:15px;
+  }
+
+  .message .avatar{
+    width:33px;
+    height:33px;
+    border-radius:9px;
+    font-size:11px;
+  }
+
+  .message-body{
+    max-width:calc(100% - 40px);
+  }
+
+  .bubble{
+    padding:10px 11px;
+    border-radius:13px;
+  }
+
+  .content{
+    font-size:11px;
+    line-height:1.85;
+  }
+
+  .role{
+    display:none;
+  }
+
+  .speaker{
+    width:39px;
+    height:39px;
+  }
+
+  .composer{
+    padding-left:7px;
+    padding-right:7px;
+  }
+
+  .send{
+    width:45px;
+  }
+
+  .audio-state{
+    display:none;
+  }
+}
+
+@media(max-width:420px){
+
+  .top-right .status-count{
+    display:none;
+  }
+
+  .status-text{
+    font-size:9px;
+  }
+
+  .audio-speed{
+    width:48px;
+  }
+
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<!-- ======================================================
+     SIDEBAR
+====================================================== -->
+
+<aside class="sidebar" id="sidebar">
+
+  <div class="brand">
+    <div class="brand-row">
+      <div class="logo">🧠</div>
+      <div>
+        <strong>AI Lab</strong>
+        <small>مختبر الوكلاء الذكي</small>
+      </div>
+    </div>
+  </div>
+
+  <div class="side-section">
+
+    <div class="section-title">
+      الشخصيات
+    </div>
+
+    <div class="characters" id="characters"></div>
+
+    <button
+      class="btn btn-primary"
+      style="width:100%;margin-top:9px"
+      onclick="openCharacter()">
+
+      ＋ إضافة شخصية
+
+    </button>
+
+  </div>
+
+  <div class="side-section">
+
+    <div class="section-title">
+      الصوت
+    </div>
+
+    <button
+      class="btn"
+      id="sideAudioButton"
+      style="width:100%"
+      onclick="toggleAutoAudio()">
+
+      🔊 القراءة التلقائية
+
+    </button>
+
+    <div style="margin-top:10px">
+
+      <label class="label">
+        سرعة الصوت
+      </label>
+
+      <input
+        id="globalSpeed"
+        type="range"
+        min=".6"
+        max="1.8"
+        step=".1"
+        value="1"
+        style="width:100%"
+      >
+
+    </div>
+
+  </div>
+
+  <div class="side-bottom">
+
+    <button class="btn" onclick="openSettings()">
+      ⚙ الإعدادات
+    </button>
+
+    <button class="btn" onclick="openCharacters()">
+      👥 الشخصيات
+    </button>
+
+    <button class="btn" onclick="exportSession()">
+      ↓ تصدير
+    </button>
+
+    <button class="btn btn-danger" onclick="clearChat()">
+      حذف
+    </button>
+
+  </div>
+
+</aside>
+
+
+<!-- ======================================================
+     MAIN
+====================================================== -->
+
+<main class="main">
+
+  <header class="topbar">
+
+    <div class="top-left">
+
+      <button
+        class="btn menu"
+        onclick="toggleSidebar()">
+
+        ☰
+
+      </button>
+
+      <div class="title-icon">
+        🧪
+      </div>
+
+      <div class="title">
+        <h1>مختبر الحلول</h1>
+        <small>تحليل → اختبار → نقد → قرار</small>
+      </div>
+
+    </div>
+
+    <div class="top-right">
+
+      <span
+        class="status-count"
+        id="messageCount"
+        style="font-size:9px;color:var(--muted)">
+        0 رسالة
+      </span>
+
+      <button
+        class="speaker"
+        id="speakerButton"
+        onclick="toggleAutoAudio()"
+        title="القراءة التلقائية">
+
+        🔊
+
+      </button>
+
+      <button
+        class="btn"
+        onclick="openSettings()">
+
+        ⚙
+
+      </button>
+
+    </div>
+
+  </header>
+
+
+  <div class="statusbar">
+
+    <span
+      class="status-dot"
+      id="statusDot">
+    </span>
+
+    <span
+      class="status-text"
+      id="statusText">
+      جاهز — اكتب المشكلة للبدء
+    </span>
+
+  </div>
+
+
+  <div class="chat-area">
+
+    <div
+      class="chat"
+      id="chat">
+
+      <div
+        class="empty"
+        id="empty">
+
+        <div class="empty-box">
+
+          <div class="empty-logo">
+            🧪
+          </div>
+
+          <h2>
+            مختبر الوكلاء جاهز
+          </h2>
+
+          <p>
+            اكتب المشكلة، ثم سيضع النظام خطة
+            للتحليل قبل أن يبدأ الوكلاء بالعمل.
+          </p>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <button
+      class="scroll-button"
+      id="scrollButton"
+      onclick="goBottom()">
+
+      ↓
+
+      <span
+        class="new-count"
+        id="newCount">
+      </span>
+
+    </button>
+
+  </div>
+
+
+  <div class="composer">
+
+    <div class="tools">
+
+      <select
+        class="select"
+        id="rounds">
+
+        <option value="3">3 جولات</option>
+        <option value="5" selected>5 جولات</option>
+        <option value="7">7 جولات</option>
+
+      </select>
+
+      <button
+        class="btn"
+        onclick="document.getElementById('file').click()">
+
+        📎 ملف
+
+      </button>
+
+      <input
+        type="file"
+        id="file"
+        hidden
+        accept=".txt,.md,.json,.csv"
+        onchange="loadFile(this)"
+      >
+
+      <button
+        class="btn"
+        id="pauseButton"
+        style="display:none"
+        onclick="togglePause()">
+
+        ⏸ إيقاف مؤقت
+
+      </button>
+
+      <button
+        class="btn btn-danger"
+        id="abortButton"
+        style="display:none"
+        onclick="abortLab()">
+
+        ■ إيقاف
+
+      </button>
+
+    </div>
+
+
+    <div class="composer-row">
+
+      <textarea
+        id="input"
+        class="message-input"
+        rows="1"
+        placeholder="اكتب المشكلة التي تريد حلها..."
+        onkeydown="handleInputKey(event)"
+      ></textarea>
+
+      <button
+        class="btn btn-primary send"
+        id="sendButton"
+        onclick="startLab()">
+
+        ▶
+
+      </button>
+
+    </div>
+
+  </div>
+
+</main>
+
+</div>
+
+
+<!-- ======================================================
+     SETTINGS DRAWER
+====================================================== -->
+
+<div
+  class="overlay"
+  id="settingsOverlay"
+  onclick="outsideClose(event,'settingsOverlay')">
+
+  <section class="drawer">
+
+    <div class="drawer-header">
+
+      <strong class="drawer-title">
+        الإعدادات
+      </strong>
+
+      <button
+        class="btn"
+        onclick="closeDrawer('settingsOverlay')">
+
+        ✕
+
+      </button>
+
+    </div>
+
+    <div class="drawer-body">
+
+      <div class="form-group">
+
+        <label class="label">
+          عنوان API للنموذج
+        </label>
+
+        <input
+          class="form-input"
+          id="apiUrl"
+          placeholder="https://your-server.com"
+        >
+
+      </div>
+
+      <div class="form-group">
+
+        <label class="label">
+          API Key
+        </label>
+
+        <input
+          class="form-input"
+          id="apiKey"
+          type="password"
+        >
+
+      </div>
+
+      <div class="form-group">
+
+        <label class="label">
+          اسم النموذج
+        </label>
+
+        <input
+          class="form-input"
+          id="model"
+          placeholder="your-model"
+        >
+
+      </div>
+
+      <hr style="border:0;border-top:1px solid var(--border);margin:18px 0">
+
+      <div class="form-group">
+
+        <label class="label">
+          Piper TTS URL
+        </label>
+
+        <input
+          class="form-input"
+          id="ttsUrl"
+          value="https://bahi-bh-spctest.hf.space"
+        >
+
+      </div>
+
+      <div class="form-group">
+
+        <label class="label">
+          Piper voice
+        </label>
+
+        <select
+          class="form-input"
+          id="voice">
+
+          <option value="ar_JO-kareem-medium">
+            ar_JO-kareem-medium
+          </option>
+
+        </select>
+
+      </div>
+
+      <div class="form-group">
+
+        <label class="label">
+          طريقة الصوت
+        </label>
+
+        <select
+          class="form-input"
+          id="audioMode">
+
+          <option value="auto">
+            Piper ثم صوت المتصفح تلقائياً
+          </option>
+
+          <option value="piper">
+            Piper فقط
+          </option>
+
+          <option value="browser">
+            صوت المتصفح فقط
+          </option>
+
+        </select>
+
+      </div>
+
+      <button
+        class="btn btn-primary"
+        style="width:100%"
+        onclick="saveSettings()">
+
+        حفظ
+
+      </button>
+
+      <button
+        class="btn"
+        style="width:100%;margin-top:7px"
+        onclick="testAudio()">
+
+        🔊 اختبار الصوت
+
+      </button>
+
+      <button
+        class="btn"
+        style="width:100%;margin-top:7px"
+        onclick="testModel()">
+
+        اختبار النموذج
+
+      </button>
+
+      <div
+        id="diagnostic"
+        style="
+          margin-top:12px;
+          color:var(--muted);
+          font-size:10px;
+          line-height:1.8;
+        ">
+      </div>
+
+    </div>
+
+  </section>
+
+</div>
+
+
+<!-- ======================================================
+     CHARACTERS DRAWER
+====================================================== -->
+
+<div
+  class="overlay"
+  id="charactersOverlay"
+  onclick="outsideClose(event,'charactersOverlay')">
+
+  <section class="drawer">
+
+    <div class="drawer-header">
+
+      <strong class="drawer-title">
+        الشخصيات
+      </strong>
+
+      <button
+        class="btn"
+        onclick="closeDrawer('charactersOverlay')">
+
+        ✕
+
+      </button>
+
+    </div>
+
+    <div class="drawer-body">
+
+      <button
+        class="btn btn-primary"
+        style="width:100%;margin-bottom:10px"
+        onclick="openCharacter()">
+
+        ＋ شخصية جديدة
+
+      </button>
+
+      <div id="characterManager"></div>
+
+    </div>
+
+  </section>
+
+</div>
+
+
+<!-- ======================================================
+     CHARACTER EDITOR
+====================================================== -->
+
+<div
+  class="overlay"
+  id="characterEditorOverlay"
+  onclick="outsideClose(event,'characterEditorOverlay')">
+
+  <section class="drawer">
+
+    <div class="drawer-header">
+
+      <strong
+        class="drawer-title"
+        id="editorTitle">
+
+        شخصية جديدة
+
+      </strong>
+
+      <button
+        class="btn"
+        onclick="closeDrawer('characterEditorOverlay')">
+
+        ✕
+
+      </button>
+
+    </div>
+
+    <div class="drawer-body">
+
+      <input
+        id="characterId"
+        type="hidden"
+      >
+
+      <div class="form-group">
+
+        <label class="label">
+          الاسم
+        </label>
+
+        <input
+          class="form-input"
+          id="characterName"
+          placeholder="المحلل"
+        >
+
+      </div>
+
+      <div class="form-group">
+
+        <label class="label">
+          الدور
+        </label>
+
+        <input
+          class="form-input"
+          id="characterRole"
+          placeholder="تحليل المشكلة"
+        >
+
+      </div>
+
+      <div class="form-group">
+
+        <label class="label">
+          لون الشخصية
+        </label>
+
+        <input
+          class="form-input"
+          id="characterColor"
+          type="color"
+          value="#4f8cff"
+          style="height:42px;padding:3px"
+        >
+
+      </div>
+
+      <div class="form-group">
+
+        <label class="label">
+          صوت الشخصية
+        </label>
+
+        <select
+          class="form-input"
+          id="characterVoice">
+
+          <option>
+            ar_JO-kareem-medium
+          </option>
+
+        </select>
+
+      </div>
+
+      <div class="form-group">
+
+        <label class="label">
+          تعليمات الشخصية
+        </label>
+
+        <textarea
+          class="form-input"
+          id="characterPrompt"
+          placeholder="ماذا يجب أن يفعل هذا الوكيل؟"
+        ></textarea>
+
+      </div>
+
+      <button
+        class="btn btn-primary"
+        style="width:100%"
+        onclick="saveCharacter()">
+
+        حفظ الشخصية
+
+      </button>
+
+    </div>
+
+  </section>
+
+</div>
+
+
+<div
+  class="toast"
+  id="toast">
+</div>
+
+
+<script>
+/* =========================================================
+   OPTIONAL MARKDOWN
+========================================================= */
+
+function markdown(text){
+
+  const escaped =
+    String(text || "")
+      .replace(/&/g,"&amp;")
+      .replace(/</g,"&lt;")
+      .replace(/>/g,"&gt;");
+
+  return escaped
+    .replace(
+      /```([\s\S]*?)```/g,
+      "<pre>$1</pre>"
+    )
+    .replace(
+      /\*\*(.*?)\*\*/g,
+      "<strong>$1</strong>"
+    )
+    .replace(
+      /\n/g,
+      "<br>"
+    );
+}
+
+
+/* =========================================================
+   DEFAULT CHARACTERS
+========================================================= */
+
+const DEFAULT_CHARACTERS = [
+
+  {
+    id:"analyst",
+    name:"المحلل",
+    role:"تفكيك المشكلة",
+    color:"#4f8cff",
+    voice:"ar_JO-kareem-medium",
+    prompt:
+      "فكك المشكلة إلى حقائق، قيود، افتراضات، معلومات ناقصة ومعيار نجاح. لا تخترع معلومات."
+  },
+
+  {
+    id:"researcher",
+    name:"الباحث",
+    role:"الأدلة والفرضيات",
+    color:"#22c55e",
+    voice:"ar_JO-kareem-medium",
+    prompt:
+      "حوّل المشكلة إلى فرضيات قابلة للاختبار وحدد الأدلة المؤيدة والمعارضة ومستوى الثقة."
+  },
+
+  {
+    id:"engineer",
+    name:"المهندس",
+    role:"التنفيذ",
+    color:"#f59e0b",
+    voice:"ar_JO-kareem-medium",
+    prompt:
+      "حوّل النتائج إلى خطوات تنفيذية واضحة، وحدد الاعتماديات والمخاطر وطريقة القياس."
+  },
+
+  {
+    id:"critic",
+    name:"الناقد",
+    role:"اختبار الأخطاء",
+    color:"#ef4444",
+    voice:"ar_JO-kareem-medium",
+    prompt:
+      "ابحث عن الثغرات والافتراضات الخفية والأخطاء المنطقية، واقترح اختبارات لدحضها."
+  },
+
+  {
+    id:"strategist",
+    name:"الاستراتيجي",
+    role:"المفاضلة",
+    color:"#a855f7",
+    voice:"ar_JO-kareem-medium",
+    prompt:
+      "قارن البدائل من حيث الأثر والتكلفة والزمن والمخاطر وقابلية التنفيذ."
+  },
+
+  {
+    id:"judge",
+    name:"المحكّم",
+    role:"الحكم النهائي",
+    color:"#06b6d4",
+    voice:"ar_JO-kareem-medium",
+    prompt:
+      "راجع كل النتائج، ثم أصدر حكماً نهائياً يتضمن الحل، الأدلة، المخاطر، الاختبار الأول ومقياس النجاح."
+  }
+
+];
+
+
+/* =========================================================
+   STATE
+========================================================= */
+
+const state = {
+
+  settings:{
+    apiUrl:"",
+    apiKey:"",
+    model:"",
+    ttsUrl:"https://bahi-bh-spctest.hf.space",
+    voice:"ar_JO-kareem-medium",
+    audioMode:"auto"
+  },
+
+  characters:[],
+
+  messages:[],
+
+  fileText:"",
+
+  running:false,
+
+  paused:false,
+
+  abortController:null,
+
+  autoAudio:false,
+
+  audio:null,
+
+  audioUrlCache:new Map(),
+
+  scroll:{
+    atBottom:true,
+    newMessages:0
+  }
+
+};
+
+
+/* =========================================================
+   INIT
+========================================================= */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  init
+);
+
+function init(){
+
+  loadStorage();
+
+  renderCharacters();
+
+  renderCharacterManager();
+
+  setupScroll();
+
+  setupTextarea();
+
+  updateAudioUI();
+
+  updateMessageCount();
+
+}
+
+
+/* =========================================================
+   STORAGE
+========================================================= */
+
+function loadStorage(){
+
+  try{
+
+    const settings =
+      JSON.parse(
+        localStorage.getItem("ai_lab_settings")
+        || "{}"
+      );
+
+    state.settings={
+      ...state.settings,
+      ...settings
+    };
+
+  }catch{}
+
+  try{
+
+    state.characters =
+      JSON.parse(
+        localStorage.getItem("ai_lab_characters")
+        || "null"
+      )
+      || structuredClone(DEFAULT_CHARACTERS);
+
+  }catch{
+
+    state.characters =
+      structuredClone(DEFAULT_CHARACTERS);
+
+  }
+
+  $("#apiUrl").value=state.settings.apiUrl;
+  $("#apiKey").value=state.settings.apiKey;
+  $("#model").value=state.settings.model;
+  $("#ttsUrl").value=state.settings.ttsUrl;
+  $("#audioMode").value=state.settings.audioMode;
+
+  setSelectValue(
+    $("#voice"),
+    state.settings.voice
+  );
+
+  setSelectValue(
+    $("#characterVoice"),
+    state.settings.voice
+  );
+
+}
+
+
+function saveSettings(){
+
+  state.settings.apiUrl =
+    $("#apiUrl").value.trim().replace(/\/+$/,"");
+
+  state.settings.apiKey =
+    $("#apiKey").value.trim();
+
+  state.settings.model =
+    $("#model").value.trim();
+
+  state.settings.ttsUrl =
+    $("#ttsUrl").value.trim().replace(/\/+$/,"");
+
+  state.settings.voice =
+    $("#voice").value;
+
+  state.settings.audioMode =
+    $("#audioMode").value;
+
+  localStorage.setItem(
+    "ai_lab_settings",
+    JSON.stringify(state.settings)
+  );
+
+  closeDrawer("settingsOverlay");
+
+  toast(
+    "تم حفظ الإعدادات",
+    "success"
+  );
+
+}
+
+
+/* =========================================================
+   CHARACTERS
+========================================================= */
+
+function renderCharacters(){
+
+  const root=$("#characters");
+
+  root.innerHTML="";
+
+  state.characters.forEach(c=>{
+
+    const item=
+      document.createElement("div");
+
+    item.className="character";
+
+    item.innerHTML=`
+
+      <div
+        class="avatar"
+        style="background:${safe(c.color)}">
+
+        ${safe(c.name.charAt(0))}
+
+      </div>
+
+      <div class="character-info">
+
+        <div class="character-name">
+          ${safe(c.name)}
+        </div>
+
+        <div class="character-role">
+          ${safe(c.role)}
+        </div>
+
+      </div>
+    `;
+
+    root.appendChild(item);
+
+  });
+
+}
+
+
+function renderCharacterManager(){
+
+  const root=$("#characterManager");
+
+  if(!root)
+    return;
+
+  root.innerHTML="";
+
+  state.characters.forEach(c=>{
+
+    const item=
+      document.createElement("div");
+
+    item.className="char-card";
+
+    item.innerHTML=`
+
+      <div style="display:flex;align-items:center;gap:8px">
+
+        <div
+          class="avatar"
+          style="background:${safe(c.color)}">
+
+          ${safe(c.name.charAt(0))}
+
+        </div>
+
+        <div style="min-width:0">
+
+          <strong style="font-size:11px">
+            ${safe(c.name)}
+          </strong>
+
+          <div style="color:var(--muted);font-size:9px">
+            ${safe(c.role)}
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="char-actions">
+
+        <button
+          class="btn"
+          onclick="openCharacter('${c.id}')">
+
+          تعديل
+
+        </button>
+
+        <button
+          class="btn btn-danger"
+          onclick="deleteCharacter('${c.id}')">
+
+          حذف
+
+        </button>
+
+      </div>
+    `;
+
+    root.appendChild(item);
+
+  });
+
+}
+
+
+function openCharacters(){
+
+  renderCharacterManager();
+
+  $("#charactersOverlay")
+    .classList.add("show");
+
+  closeSidebar();
+
+}
+
+
+function openCharacter(id=""){
+
+  const c =
+    state.characters.find(
+      x=>x.id===id
+    );
+
+  $("#characterId").value =
+    c?.id || "";
+
+  $("#characterName").value =
+    c?.name || "";
+
+  $("#characterRole").value =
+    c?.role || "";
+
+  $("#characterColor").value =
+    c?.color || "#4f8cff";
+
+  $("#characterPrompt").value =
+    c?.prompt || "";
+
+  $("#editorTitle").textContent =
+    c ?
+    "تعديل الشخصية":
+    "إضافة شخصية";
+
+  closeDrawer("charactersOverlay");
+
+  $("#characterEditorOverlay")
+    .classList.add("show");
+
+}
+
+
+function saveCharacter(){
+
+  const id =
+    $("#characterId").value ||
+    "character_"+Date.now();
+
+  const c={
+
+    id,
+
+    name:
+      $("#characterName").value.trim()
+      || "شخصية جديدة",
+
+    role:
+      $("#characterRole").value.trim()
+      || "وكيل عام",
+
+    color:
+      $("#characterColor").value,
+
+    voice:
+      $("#characterVoice").value
+      || state.settings.voice,
+
+    prompt:
+      $("#characterPrompt").value.trim()
+      || "حلل المشكلة بموضوعية وقدم نتيجة عملية."
+
+  };
+
+  const index =
+    state.characters.findIndex(
+      x=>x.id===id
+    );
+
+  if(index>=0)
+    state.characters[index]=c;
+  else
+    state.characters.push(c);
+
+  localStorage.setItem(
+    "ai_lab_characters",
+    JSON.stringify(state.characters)
+  );
+
+  renderCharacters();
+
+  renderCharacterManager();
+
+  closeDrawer("characterEditorOverlay");
+
+  toast(
+    "تم حفظ الشخصية",
+    "success"
+  );
+
+}
+
+
+function deleteCharacter(id){
+
+  if(state.characters.length<=1){
+
+    toast(
+      "يجب أن تبقى شخصية واحدة على الأقل",
+      "error"
+    );
+
+    return;
+
+  }
+
+  if(
+    !confirm("هل تريد حذف الشخصية؟")
+  )
+    return;
+
+  state.characters =
+    state.characters.filter(
+      c=>c.id!==id
+    );
+
+  localStorage.setItem(
+    "ai_lab_characters",
+    JSON.stringify(state.characters)
+  );
+
+  renderCharacters();
+
+  renderCharacterManager();
+
+}
+
+
+/* =========================================================
+   AUDIO
+========================================================= */
+
+function toggleAutoAudio(){
+
+  state.autoAudio=
+    !state.autoAudio;
+
+  updateAudioUI();
+
+  if(!state.autoAudio){
+
+    stopAudio();
+
+    toast(
+      "تم إيقاف القراءة التلقائية"
+    );
+
+    return;
+
+  }
+
+  /*
+     هذا الضغط نفسه يعتبر User Gesture.
+     نستخدمه لتجهيز نظام الصوت.
+  */
+
+  primeBrowserAudio();
+
+  toast(
+    "القراءة التلقائية مفعلة",
+    "success"
+  );
+
+}
+
+
+function updateAudioUI(){
+
+  $("#speakerButton")
+    .classList.toggle(
+      "active",
+      state.autoAudio
+    );
+
+  $("#sideAudioButton")
+    .classList.toggle(
+      "btn-green",
+      state.autoAudio
+    );
+
+  $("#sideAudioButton").textContent =
+    state.autoAudio
+      ? "🟢 ACTIVE — القراءة التلقائية"
+      : "🔊 القراءة التلقائية";
+
+}
+
+
+function primeBrowserAudio(){
+
+  /*
+     SpeechSynthesis لا يحتاج تحميل ملف.
+     مجرد استدعاء voices يجهز API في بعض المتصفحات.
+  */
+
+  if("speechSynthesis" in window){
+
+    window.speechSynthesis
+      .getVoices();
+
+  }
+
+}
+
+
+async function speak(text,character,audio){
+
+  const clean =
+    cleanSpeechText(text);
+
+  if(!clean)
+    return;
+
+  stopAudio();
+
+  const mode =
+    state.settings.audioMode;
+
+  const speed =
+    parseFloat(
+      $("#globalSpeed").value
+    ) || 1;
+
+  audio.state.textContent=
+    "جاري تشغيل الصوت...";
+
+  audio.play.disabled=true;
+
+  /*
+     1. Piper
+  */
+
+  if(mode!=="browser"){
+
+    try{
+
+      const blob =
+        await piperRequest(
+          clean,
+          character,
+          speed
+        );
+
+      if(blob){
+
+        const url =
+          URL.createObjectURL(blob);
+
+        const player =
+          new Audio(url);
+
+        state.audio=player;
+
+        player.onloadedmetadata=()=>{
+          audio.range.max =
+            player.duration || 100;
+        };
+
+        player.ontimeupdate=()=>{
+          if(player.duration)
+            audio.range.value =
+              player.currentTime /
+              player.duration *
+              100;
+        };
+
+        player.onended=()=>{
+
+          audio.state.textContent=
+            "اكتمل";
+
+          audio.play.disabled=false;
+
+          URL.revokeObjectURL(url);
+
+          state.audio=null;
+
+        };
+
+        player.onerror=()=>{
+
+          URL.revokeObjectURL(url);
+
+          state.audio=null;
+
+          browserSpeak(
+            clean,
+            speed,
+            audio
+          );
+
+        };
+
+        audio.play.onclick=()=>{
+          if(player.paused)
+            player.play();
+          else
+            player.pause();
+        };
+
+        audio.range.oninput=()=>{
+          if(player.duration)
+            player.currentTime =
+              player.duration *
+              Number(audio.range.value)/100;
+        };
+
+        await player.play();
+
+        return;
+
+      }
+
+    }catch(error){
+
+      console.warn(
+        "Piper failed:",
+        error
+      );
+
+      if(mode==="piper"){
+
+        audio.state.textContent=
+          "تعذر الاتصال بـ Piper";
+
+        audio.play.disabled=false;
+
+        toast(
+          "Piper غير متاح. تحقق من عنوان الخدمة وCORS.",
+          "error"
+        );
+
+        return;
+
+      }
+
+    }
+
+  }
+
+  /*
+     2. Browser fallback
+  */
+
+  browserSpeak(
+    clean,
+    speed,
+    audio
+  );
+
+}
+
+
+function browserSpeak(
+  text,
+  speed,
+  audio
+){
+
+  if(!("speechSynthesis" in window)){
+
+    audio.state.textContent=
+      "المتصفح لا يدعم الصوت";
+
+    audio.play.disabled=false;
+
+    return;
+
+  }
+
+  const utter =
+    new SpeechSynthesisUtterance(text);
+
+  utter.lang="ar-SA";
+
+  utter.rate=speed;
+
+  utter.pitch=1;
+
+  utter.volume=1;
+
+  const voices =
+    window.speechSynthesis.getVoices();
+
+  const arabic =
+    voices.find(
+      v=>v.lang &&
+      v.lang.toLowerCase().startsWith("ar")
+    );
+
+  if(arabic)
+    utter.voice=arabic;
+
+  state.audio={
+    browser:true,
+    cancel:()=>{
+      window.speechSynthesis.cancel();
+    }
+  };
+
+  utter.onstart=()=>{
+    audio.state.textContent=
+      "صوت المتصفح يعمل";
+  };
+
+  utter.onend=()=>{
+    audio.state.textContent=
+      "اكتمل";
+
+    state.audio=null;
+  };
+
+  utter.onerror=()=>{
+    audio.state.textContent=
+      "تعذر تشغيل الصوت";
+
+    state.audio=null;
+  };
+
+  audio.play.onclick=()=>{
+    if(
+      window.speechSynthesis.speaking
+    )
+      window.speechSynthesis.pause();
+    else
+      window.speechSynthesis.resume();
+  };
+
+  audio.play.disabled=false;
+
+  window.speechSynthesis.speak(
+    utter
+  );
+
+}
+
+
+async function piperRequest(
+  text,
+  character,
+  speed
+){
+
+  const base =
+    state.settings.ttsUrl
+      .replace(/\/+$/,"");
+
+  const voice =
+    character?.voice ||
+    state.settings.voice;
+
+  const key =
+    JSON.stringify({
+      base,
+      voice,
+      speed,
+      text
+    });
+
+  if(
+    state.audioUrlCache.has(key)
+  ){
+
+    const cached =
+      state.audioUrlCache.get(key);
+
+    const response =
+      await fetch(cached);
+
+    return response.blob();
+
+  }
+
+  /*
+     نجرب أكثر من API شائع للخدمات
+     المخصصة، بدلاً من افتراض Endpoint واحد.
+  */
+
+  const endpoints=[
+
+    {
+      url:`${base}/api/tts`,
+      body:{
+        text,
+        voice,
+        speed
+      }
+    },
+
+    {
+      url:`${base}/tts`,
+      body:{
+        text,
+        voice,
+        speed
+      }
+    },
+
+    {
+      url:`${base}/api/synthesize`,
+      body:{
+        text,
+        voice,
+        speed
+      }
+    }
+
+  ];
+
+  let lastError=null;
+
+  for(
+    const endpoint of endpoints
+  ){
+
+    try{
+
+      const response =
+        await fetch(
+          endpoint.url,
+          {
+            method:"POST",
+
+            headers:{
+              "Content-Type":
+                "application/json"
+            },
+
+            body:
+              JSON.stringify(
+                endpoint.body
+              )
+          }
+        );
+
+      if(!response.ok){
+
+        lastError =
+          new Error(
+            `HTTP ${response.status}`
+          );
+
+        continue;
+
+      }
+
+      const type =
+        response.headers
+          .get("content-type")
+          || "";
+
+      /*
+         WAV/MP3 مباشرة
+      */
+
+      if(
+        type.includes("audio")
+      ){
+
+        const blob =
+          await response.blob();
+
+        const url =
+          URL.createObjectURL(blob);
+
+        state.audioUrlCache.set(
+          key,
+          url
+        );
+
+        return blob;
+
+      }
+
+      /*
+         بعض الخدمات ترجع JSON
+         يحتوي على audio URL.
+      */
+
+      const data =
+        await response.json();
+
+      const audioUrl =
+        data.audio_url ||
+        data.url ||
+        data.audio ||
+        data.file;
+
+      if(audioUrl){
+
+        const audioResponse =
+          await fetch(
+            new URL(
+              audioUrl,
+              base
+            ).href
+          );
+
+        if(audioResponse.ok){
+
+          const blob =
+            await audioResponse.blob();
+
+          const url =
+            URL.createObjectURL(blob);
+
+          state.audioUrlCache.set(
+            key,
+            url
+          );
+
+          return blob;
+
+        }
+
+      }
+
+    }catch(error){
+
+      lastError=error;
+
+    }
+
+  }
+
+  throw(
+    lastError ||
+    new Error("Piper endpoint غير معروف")
+  );
+
+}
+
+
+function stopAudio(){
+
+  if(!state.audio)
+    return;
+
+  try{
+
+    if(
+      state.audio.browser &&
+      state.audio.cancel
+    ){
+
+      state.audio.cancel();
+
+    }else if(
+      state.audio.pause
+    ){
+
+      state.audio.pause();
+
+    }
+
+  }catch{}
+
+  state.audio=null;
+
+}
+
+
+/* =========================================================
+   MESSAGE
+========================================================= */
+
+function addMessage(
+  character,
+  text,
+  auto=true
+){
+
+  $("#empty")?.remove();
+
+  const message={
+    id:
+      crypto.randomUUID
+        ? crypto.randomUUID()
+        : String(Date.now()+Math.random()),
+
+    characterId:
+      character?.id || "system",
+
+    text,
+
+    time:
+      Date.now()
+  };
+
+  state.messages.push(message);
+
+  updateMessageCount();
+
+  const root=
+    document.createElement("article");
+
+  root.className="message";
+
+  const avatar=
+    document.createElement("div");
+
+  avatar.className="avatar";
+
+  avatar.style.background=
+    character?.color || "#64748b";
+
+  avatar.textContent=
+    character?.name?.charAt(0) || "ن";
+
+  const body=
+    document.createElement("div");
+
+  body.className="message-body";
+
+  const meta=
+    document.createElement("div");
+
+  meta.className="meta";
+
+  meta.innerHTML=`
+
+    <span
+      class="sender"
+      style="color:${safe(character?.color || "#fff")}">
+
+      ${safe(character?.name || "النظام")}
+
+    </span>
+
+    ${
+      character
+      ? `<span class="role">
+           ${safe(character.role)}
+         </span>`
+      : ""
+    }
+
+  `;
+
+  const bubble=
+    document.createElement("div");
+
+  bubble.className="bubble";
+
+  const content=
+    document.createElement("div");
+
+  content.className="content";
+
+  content.innerHTML=
+    markdown(text);
+
+  const actions=
+    document.createElement("div");
+
+  actions.className="actions";
+
+  const audioButton=
+    document.createElement("button");
+
+  audioButton.className="icon-btn";
+
+  audioButton.textContent="🔊";
+
+  audioButton.title=
+    "إظهار شريط الصوت";
+
+  const copyButton=
+    document.createElement("button");
+
+  copyButton.className="icon-btn";
+
+  copyButton.textContent="⧉";
+
+  copyButton.title="نسخ";
+
+  copyButton.onclick=async()=>{
+
+    try{
+
+      await navigator.clipboard.writeText(
+        text
+      );
+
+      toast(
+        "تم النسخ",
+        "success"
+      );
+
+    }catch{
+
+      toast(
+        "تعذر النسخ",
+        "error"
+      );
+
+    }
+
+  };
+
+  const audioBox=
+    document.createElement("div");
+
+  audioBox.className="audio";
+
+  audioBox.innerHTML=`
+
+    <button class="audio-play">
+      ▶
+    </button>
+
+    <input
+      class="audio-range"
+      type="range"
+      min="0"
+      max="100"
+      value="0"
+    >
+
+    <select class="audio-speed">
+
+      <option value=".7">0.7x</option>
+      <option value=".8">0.8x</option>
+      <option value=".9">0.9x</option>
+      <option value="1" selected>1x</option>
+      <option value="1.1">1.1x</option>
+      <option value="1.2">1.2x</option>
+      <option value="1.4">1.4x</option>
+      <option value="1.6">1.6x</option>
+
+    </select>
+
+    <span class="audio-state">
+      جاهز
+    </span>
+  `;
+
+  const audio={
+    root:audioBox,
+    play:audioBox.querySelector(".audio-play"),
+    range:audioBox.querySelector(".audio-range"),
+    state:audioBox.querySelector(".audio-state")
+  };
+
+  audioButton.onclick=()=>{
+
+    audioBox.classList.toggle("open");
+
+  };
+
+  audio.play.onclick=()=>{
+
+    if(state.audio){
+
+      stopAudio();
+
+      return;
+
+    }
+
+    speak(
+      text,
+      character,
+      audio
+    );
+
+  };
+
+  actions.append(
+    audioButton,
+    copyButton
+  );
+
+  bubble.append(
+    content,
+    actions,
+    audioBox
+  );
+
+  body.append(
+    meta,
+    bubble
+  );
+
+  root.append(
+    avatar,
+    body
+  );
+
+  $("#chat").appendChild(root);
+
+  /*
+     قاعدة التمرير الأساسية:
+     لا ننزل إلا إذا كان المستخدم قريباً من الأسفل
+     قبل وصول الرسالة.
+  */
+
+  if(state.scroll.atBottom){
+
+    goBottom(false);
+
+  }else{
+
+    state.scroll.newMessages++;
+
+    updateScrollButton();
+
+  }
+
+  /*
+     الصوت التلقائي
+  */
+
+  if(
+    auto &&
+    state.autoAudio &&
+    character
+  ){
+
+    audioBox.classList.add("open");
+
+    setTimeout(
+      ()=>{
+        speak(
+          text,
+          character,
+          audio
+        );
+      },
+      80
+    );
+
+  }
+
+}
+
+
+function addSystem(text){
+
+  addMessage(
+    {
+      id:"system",
+      name:"النظام",
+      role:"حالة المختبر",
+      color:"#64748b"
+    },
+    text,
+    false
+  );
+
+}
+
+
+/* =========================================================
+   TYPING
+========================================================= */
+
+function showTyping(character){
+
+  removeTyping();
+
+  const item=
+    document.createElement("article");
+
+  item.id="typing";
+
+  item.className="message";
+
+  item.innerHTML=`
+
+    <div
+      class="avatar"
+      style="background:${safe(character.color)}">
+
+      ${safe(character.name.charAt(0))}
+
+    </div>
+
+    <div class="message-body">
+
+      <div class="meta">
+
+        <span
+          class="sender"
+          style="color:${safe(character.color)}">
+
+          ${safe(character.name)}
+
+        </span>
+
+      </div>
+
+      <div class="bubble">
+
+        <div class="typing">
+
+          <i></i>
+          <i></i>
+          <i></i>
+
+        </div>
+
+      </div>
+
+    </div>
+  `;
+
+  $("#chat").appendChild(item);
+
+  if(state.scroll.atBottom)
+    goBottom(false);
+
+}
+
+
+function removeTyping(){
+
+  $("#typing")?.remove();
+
+}
+
+
+/* =========================================================
+   SMART SCROLL
+========================================================= */
+
+function setupScroll(){
+
+  $("#chat").addEventListener(
+    "scroll",
+    ()=>{
+      const el=$("#chat");
+
+      const distance =
+        el.scrollHeight -
+        el.scrollTop -
+        el.clientHeight;
+
+      state.scroll.atBottom =
+        distance <= 90;
+
+      if(state.scroll.atBottom){
+
+        state.scroll.newMessages=0;
+
+      }
+
+      updateScrollButton();
+
+    },
+    {passive:true}
+  );
+
+}
+
+
+function goBottom(smooth=true){
+
+  const el=$("#chat");
+
+  el.scrollTo({
+
+    top:el.scrollHeight,
+
+    behavior:
+      smooth
+      ? "smooth"
+      : "auto"
+
+  });
+
+  state.scroll.atBottom=true;
+
+  state.scroll.newMessages=0;
+
+  updateScrollButton();
+
+}
+
+
+function updateScrollButton(){
+
+  const button=
+    $("#scrollButton");
+
+  const count=
+    $("#newCount");
+
+  const show=
+    !state.scroll.atBottom;
+
+  button.classList.toggle(
+    "show",
+    show
+  );
+
+  if(
+    state.scroll.newMessages>0
+  ){
+
+    count.style.display="grid";
+
+    count.textContent =
+      state.scroll.newMessages>99
+      ? "99+"
+      : state.scroll.newMessages;
+
+  }else{
+
+    count.style.display="none";
+
+  }
+
+}
+
+
+/* =========================================================
+   LAB ENGINE
+========================================================= */
+
+async function startLab(){
+
+  if(state.running)
+    return;
+
+  const topic=
+    $("#input").value.trim();
+
+  if(!topic && !state.fileText){
+
+    toast(
+      "اكتب المشكلة أو أرفق ملفاً",
+      "error"
+    );
+
+    return;
+
+  }
+
+  const problem=
+    topic ||
+    "حلل المحتوى المرفق وحدد المشكلة الرئيسية.";
+
+  state.running=true;
+
+  state.paused=false;
+
+  state.abortController=
+    new AbortController();
+
+  setRunningUI(true);
+
+  setStatus(
+    "جاري بناء خطة التحليل...",
+    "ok"
+  );
+
+  addSystem(
+    `## خطة المختبر
+
+**المشكلة:** ${problem}
+
+**المراحل:**
+
+1. تحليل المشكلة
+2. بناء الفرضيات
+3. جمع الحجج والأدلة
+4. تصميم الحل
+5. نقد الحل
+6. المفاضلة بين البدائل
+7. الحكم النهائي
+
+سيتم تنفيذ المراحل بالتتابع، ولن يبدأ الوكيل التالي قبل اكتمال نتيجة الوكيل السابق.`
+  );
+
+  let context=
+    `المشكلة:\n${problem}\n\n`;
+
+  if(state.fileText){
+
+    context +=
+      `المستند:\n${
+        state.fileText.slice(0,10000)
+      }\n\n`;
+
+  }
+
+  const rounds=
+    Number($("#rounds").value);
+
+  /*
+     لا نكرر المحكّم في كل جولة.
+     هو يأتي في النهاية.
+  */
+
+  const workingIds=[
+    "analyst",
+    "researcher",
+    "engineer",
+    "critic",
+    "strategist"
+  ];
+
+  try{
+
+    for(
+      let round=0;
+      round<rounds &&
+      state.running;
+      round++
+    ){
+
+      await pauseIfNeeded();
+
+      addSystem(
+        `### الجولة ${round+1} من ${rounds}`
+      );
+
+      for(
+        const id of workingIds
+      ){
+
+        if(!state.running)
+          break;
+
+        await pauseIfNeeded();
+
+        const character=
+          state.characters.find(
+            c=>c.id===id
+          );
+
+        if(!character)
+          continue;
+
+        showTyping(character);
+
+        setStatus(
+          `${character.name} يعمل الآن...`,
+          "ok"
+        );
+
+        try{
+
+          const answer=
+            await callModel(
+              character,
+              problem,
+              context,
+              round
+            );
+
+          removeTyping();
+
+          addMessage(
+            character,
+            answer
+          );
+
+          context +=
+            `\n\n### ${character.name}\n${answer}`;
+
+          context=
+            context.slice(-12000);
+
+        }catch(error){
+
+          removeTyping();
+
+          if(
+            error.name==="AbortError"
+          )
+            throw error;
+
+          addSystem(
+            `⚠️ تعذر تشغيل ${character.name}: ${error.message}`
+          );
+
+        }
+
+      }
+
+    }
+
+    if(state.running){
+
+      const judge=
+        state.characters.find(
+          c=>c.id==="judge"
+        );
+
+      if(judge){
+
+        await pauseIfNeeded();
+
+        showTyping(judge);
+
+        setStatus(
+          "المحكّم يراجع جميع النتائج...",
+          "ok"
+        );
+
+        const answer=
+          await callModel(
+            judge,
+            problem,
+            context,
+            rounds
+          );
+
+        removeTyping();
+
+        addMessage(
+          judge,
+          answer
+        );
+
+      }
+
+      addSystem(
+        `## انتهى المختبر
+
+تم تنفيذ الخطة كاملة.
+
+**الخطوة التالية:** استخدم الحكم النهائي باعتباره أساس القرار، ثم اختبر أول إجراء عملي قابل للقياس.`
+      );
+
+    }
+
+  }catch(error){
+
+    removeTyping();
+
+    if(
+      error.name!=="AbortError"
+    ){
+
+      addSystem(
+        `❌ توقف المختبر: ${error.message}`
+      );
+
+    }
+
+  }finally{
+
+    finishLab();
+
+  }
+
+}
+
+
+/* =========================================================
+   MODEL
+========================================================= */
+
+async function callModel(
+  character,
+  problem,
+  context,
+  round
+){
+
+  if(!state.settings.apiUrl){
+
+    throw new Error(
+      "لم يتم إعداد عنوان API للنموذج."
+    );
+
+  }
+
+  const system=`
+
+أنت وكيل متخصص داخل مختبر حلول متعدد الوكلاء.
+
+اسمك:
+${character.name}
+
+دورك:
+${character.role}
+
+تعليماتك:
+${character.prompt}
+
+المشكلة:
+${problem}
+
+الجولة:
+${round+1}
+
+سياق العمل السابق:
+${context.slice(-11000)}
+
+القواعد:
+- لا تخترع معلومات.
+- ميّز بين الحقيقة والافتراض.
+- لا تكرر كلام الوكلاء الآخرين بلا إضافة.
+- إذا كانت المعلومات غير كافية فاذكر ذلك.
+- قدم تحليلاً عملياً.
+- استخدم العربية.
+`;
+
+  const response=
+    await fetch(
+      state.settings.apiUrl +
+      "/v1/chat/completions",
+      {
+        method:"POST",
+
+        headers:{
+          "Content-Type":
+            "application/json",
+
+          ...(state.settings.apiKey
+            ? {
+                Authorization:
+                  "Bearer " +
+                  state.settings.apiKey
+              }
+            : {})
+        },
+
+        body:JSON.stringify({
+
+          model:
+            state.settings.model,
+
+          messages:[
+
+            {
+              role:"system",
+              content:system
+            },
+
+            {
+              role:"user",
+              content:
+                "قدم مساهمتك الآن."
+            }
+
+          ],
+
+          temperature:
+            character.id==="judge"
+            ? .15
+            : .4,
+
+          max_tokens:100
+
+        }),
+
+        signal:
+          state.abortController.signal
+
+      }
+    );
+
+  if(!response.ok){
+
+    let message=
+      `HTTP ${response.status}`;
+
+    try{
+
+      const data=
+        await response.json();
+
+      message=
+        data?.error?.message ||
+        message;
+
+    }catch{}
+
+    throw new Error(message);
+
+  }
+
+  const data=
+    await response.json();
+
+  const answer=
+    data?.choices?.[0]?.message?.content;
+
+  if(!answer){
+
+    throw new Error(
+      "النموذج لم يرجع نصاً."
+    );
+
+  }
+
+  return answer;
+
+}
+
+
+/* =========================================================
+   PAUSE
+========================================================= */
+
+async function pauseIfNeeded(){
+
+  while(
+    state.paused &&
+    state.running
+  ){
+
+    await new Promise(
+      resolve=>setTimeout(
+        resolve,
+        200
+      )
+    );
+
+  }
+
+}
+
+
+function togglePause(){
+
+  if(!state.running)
+    return;
+
+  state.paused=
+    !state.paused;
+
+  $("#pauseButton").textContent=
+    state.paused
+    ? "▶ استكمال"
+    : "⏸ إيقاف مؤقت";
+
+  setStatus(
+    state.paused
+      ? "المختبر متوقف مؤقتاً"
+      : "تم استكمال المختبر",
+    state.paused
+      ? ""
+      : "ok"
+  );
+
+}
+
+
+function abortLab(){
+
+  state.running=false;
+
+  state.paused=false;
+
+  try{
+    state.abortController?.abort();
+  }catch{}
+
+  removeTyping();
+
+  setStatus(
+    "تم إيقاف المختبر",
+    ""
+  );
+
+  setRunningUI(false);
+
+}
+
+
+/* =========================================================
+   UI STATE
+========================================================= */
+
+function setRunningUI(running){
+
+  $("#sendButton").disabled=
+    running;
+
+  $("#pauseButton").style.display=
+    running
+      ? "inline-flex"
+      : "none";
+
+  $("#abortButton").style.display=
+    running
+      ? "inline-flex"
+      : "none";
+
+  $("#sendButton").classList.toggle(
+    "stop",
+    running
+  );
+
+}
+
+
+function finishLab(){
+
+  state.running=false;
+
+  state.paused=false;
+
+  state.abortController=null;
+
+  setRunningUI(false);
+
+  setStatus(
+    "جاهز — المختبر متاح لمشكلة جديدة",
+    "ok"
+  );
+
+}
+
+
+/* =========================================================
+   FILE
+========================================================= */
+
+function loadFile(input){
+
+  const file=
+    input.files?.[0];
+
+  if(!file)
+    return;
+
+  const reader=
+    new FileReader();
+
+  reader.onload=event=>{
+
+    state.fileText=
+      String(
+        event.target.result
+      ).slice(0,12000);
+
+    setStatus(
+      `تم تحميل الملف: ${file.name}`,
+      "ok"
+    );
+
+    toast(
+      "تم تحميل الملف",
+      "success"
+    );
+
+  };
+
+  reader.onerror=()=>{
+
+    toast(
+      "تعذر قراءة الملف",
+      "error"
+    );
+
+  };
+
+  reader.readAsText(file);
+
+}
+
+
+/* =========================================================
+   AUDIO TEST
+========================================================= */
+
+async function testAudio(){
+
+  const testCharacter={
+    name:"اختبار",
+    voice:state.settings.voice,
+    speed:1
+  };
+
+  const audio={
+    play:document.createElement("button"),
+    range:document.createElement("input"),
+    state:document.createElement("span")
+  };
+
+  audio.state.textContent=
+    "اختبار...";
+
+  $("#diagnostic").textContent=
+    "جاري اختبار Piper ثم المتصفح...";
+
+  try{
+
+    await speak(
+      "هذا اختبار للصوت. إذا سمعت هذه الجملة فإن نظام الصوت يعمل.",
+      testCharacter,
+      audio
+    );
+
+    $("#diagnostic").textContent=
+      "بدأ اختبار الصوت. تحقق من السماعات.";
+
+  }catch(error){
+
+    $("#diagnostic").textContent=
+      error.message;
+
+  }
+
+}
+
+
+async function testModel(){
+
+  if(!state.settings.apiUrl){
+
+    $("#diagnostic").textContent=
+      "أدخل عنوان API أولاً.";
+
+    return;
+
+  }
+
+  $("#diagnostic").textContent=
+    "جاري اختبار النموذج...";
+
+  try{
+
+    const response=
+      await fetch(
+        state.settings.apiUrl +
+        "/v1/models",
+        {
+          headers:
+            state.settings.apiKey
+            ? {
+                Authorization:
+                  "Bearer " +
+                  state.settings.apiKey
+              }
+            : {}
+        }
+      );
+
+    if(!response.ok)
+      throw new Error(
+        `HTTP ${response.status}`
+      );
+
+    $("#diagnostic").textContent=
+      "✓ الاتصال بالنموذج يعمل.";
+
+  }catch(error){
+
+    $("#diagnostic").textContent=
+      "✕ " + error.message;
+
+  }
+
+}
+
+
+/* =========================================================
+   SETTINGS / DRAWERS
+========================================================= */
+
+function openSettings(){
+
+  $("#settingsOverlay")
+    .classList.add("show");
+
+  closeSidebar();
+
+}
+
+
+function closeDrawer(id){
+
+  $("#" + id)
+    ?.classList.remove("show");
+
+}
+
+
+function outsideClose(event,id){
+
+  if(event.target.id===id)
+    closeDrawer(id);
+
+}
+
+
+function toggleSidebar(){
+
+  $("#sidebar")
+    .classList.toggle("open");
+
+}
+
+
+function closeSidebar(){
+
+  $("#sidebar")
+    .classList.remove("open");
+
+}
+
+
+/* =========================================================
+   CHAT
+========================================================= */
+
+function clearChat(){
+
+  if(
+    !confirm(
+      "هل تريد مسح المحادثة الحالية؟"
+    )
+  )
+    return;
+
+  abortLab();
+
+  stopAudio();
+
+  state.messages=[];
+  state.fileText="";
+
+  $("#chat").innerHTML=`
+
+    <div
+      class="empty"
+      id="empty">
+
+      <div class="empty-box">
+
+        <div class="empty-logo">
+          🧪
+        </div>
+
+        <h2>
+          مختبر الوكلاء جاهز
+        </h2>
+
+        <p>
+          اكتب المشكلة للبدء.
+        </p>
+
+      </div>
+
+    </div>
+  `;
+
+  state.scroll.atBottom=true;
+  state.scroll.newMessages=0;
+
+  updateScrollButton();
+  updateMessageCount();
+
+}
+
+
+function exportSession(){
+
+  const data={
+    date:new Date().toISOString(),
+    messages:state.messages
+  };
+
+  const blob=
+    new Blob(
+      [
+        JSON.stringify(
+          data,
+          null,
+          2
+        )
+      ],
+      {
+        type:"application/json"
+      }
+    );
+
+  const url=
+    URL.createObjectURL(blob);
+
+  const a=
+    document.createElement("a");
+
+  a.href=url;
+
+  a.download=
+    `ai-lab-${Date.now()}.json`;
+
+  a.click();
+
+  setTimeout(
+    ()=>URL.revokeObjectURL(url),
+    1000
+  );
+
+}
+
+
+/* =========================================================
+   INPUT
+========================================================= */
+
+function setupTextarea(){
+
+  $("#input").addEventListener(
+    "input",
+    ()=>{
+      const el=$("#input");
+
+      el.style.height="auto";
+
+      el.style.height=
+        Math.min(
+          el.scrollHeight,
+          140
+        )+"px";
+    }
+  );
+
+}
+
+
+function handleInputKey(event){
+
+  if(
+    event.key==="Enter" &&
+    !event.shiftKey
+  ){
+
+    event.preventDefault();
+
+    startLab();
+
+  }
+
+}
+
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+function setStatus(
+  text,
+  type=""
+){
+
+  $("#statusText").textContent=text;
+
+  const dot=$("#statusDot");
+
+  dot.className=
+    "status-dot " +
+    (type || "");
+
+}
+
+
+function updateMessageCount(){
+
+  $("#messageCount").textContent=
+    `${state.messages.length} رسالة`;
+
+}
+
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function $(selector){
+
+  return document.querySelector(selector);
+
+}
+
+
+function safe(value){
+
+  return String(value ?? "")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+
+}
+
+
+function cleanSpeechText(text){
+
+  return String(text || "")
+    .replace(/```[\s\S]*?```/g,"")
+    .replace(/[#*_>`]/g,"")
+    .replace(/\[([^\]]+)\]\([^)]+\)/g,"$1")
+    .replace(/\s+/g," ")
+    .trim()
+    .slice(0,12000);
+
+}
+
+
+function setSelectValue(
+  select,
+  value
+){
+
+  if(!select)
+    return;
+
+  const exists=
+    [...select.options]
+      .some(
+        option=>option.value===value
+      );
+
+  if(!exists){
+
+    const option=
+      document.createElement("option");
+
+    option.value=value;
+    option.textContent=value;
+
+    select.appendChild(option);
+
+  }
+
+  select.value=value;
+
+}
+
+
+function toast(
+  message,
+  type=""
+){
+
+  const el=$("#toast");
+
+  el.textContent=message;
+
+  el.className=
+    "toast show " +
+    type;
+
+  clearTimeout(
+    toast.timer
+  );
+
+  toast.timer=
+    setTimeout(
+      ()=>{
+        el.classList.remove("show");
+      },
+      2800
+    );
+
+}
+
+
+/* =========================================================
+   LOAD AVAILABLE VOICES WHEN SETTINGS ARE OPENED
+========================================================= */
+
+async function discoverVoices(){
+
+  const base=
+    state.settings.ttsUrl
+      .replace(/\/+$/,"");
+
+  const candidates=[
+    `${base}/api/voices`,
+    `${base}/voices`
+  ];
+
+  for(
+    const url of candidates
+  ){
+
+    try{
+
+      const response=
+        await fetch(url);
+
+      if(!response.ok)
+        continue;
+
+      const data=
+        await response.json();
+
+      const list=
+        Array.isArray(data)
+        ? data
+        : (
+            data.voices ||
+            data.models ||
+            []
+          );
+
+      if(!Array.isArray(list))
+        continue;
+
+      const voices=
+        list
+          .map(
+            item=>
+              typeof item==="string"
+              ? item
+              : (
+                  item.id ||
+                  item.name ||
+                  item.voice
+                )
+          )
+          .filter(Boolean);
+
+      if(!voices.length)
+        continue;
+
+      $("#voice").innerHTML="";
+
+      voices.forEach(v=>{
+
+        const option=
+          document.createElement("option");
+
+        option.value=v;
+        option.textContent=v;
+
+        $("#voice")
+          .appendChild(option);
+
+      });
+
+      setSelectValue(
+        $("#voice"),
+        state.settings.voice
+      );
+
+      $("#diagnostic").textContent=
+        `تم اكتشاف ${voices.length} صوتاً.`;
+
+      return;
+
+    }catch{}
+
+  }
+
+  $("#diagnostic").textContent=
+    "لم يتم اكتشاف قائمة الأصوات تلقائياً. يمكنك كتابة اسم الصوت الموجود في خدمتك.";
+
+}
+
+
+/* =========================================================
+   OPEN SETTINGS HOOK
+========================================================= */
+
+$("#settingsOverlay")
+  ?.addEventListener(
+    "transitionend",
+    ()=>{
+      if(
+        $("#settingsOverlay")
+          .classList.contains("show")
+      ){
+
+        discoverVoices();
+
+      }
+    }
+  );
+
+</script>
+
+</body>
+</html>
