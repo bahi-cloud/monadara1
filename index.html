@@ -6,6 +6,10 @@
 <meta name="theme-color" content="#07111f">
 <title>AI Lab — مختبر الوكلاء</title>
 
+<!-- PDF.js خفيفة في المتصفح لقراءة PDF دون Pyodide -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs"
+        type="module"></script>
+
 <style>
 :root{
   --bg:#07111f;
@@ -20,6 +24,7 @@
   --green:#22c55e;
   --red:#ef4444;
   --orange:#f59e0b;
+  --cyan:#06b6d4;
   --shadow:0 20px 60px rgba(0,0,0,.35);
   --radius:16px;
   --safe-bottom:env(safe-area-inset-bottom,0px);
@@ -37,12 +42,7 @@ html,body{
   overflow:hidden;
   background:var(--bg);
   color:var(--text);
-  font-family:
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 }
 
 button,input,textarea,select{
@@ -59,9 +59,9 @@ button{
   display:flex;
 }
 
-/* =========================================================
+/* =========================
    SIDEBAR
-========================================================= */
+========================= */
 
 .sidebar{
   width:300px;
@@ -176,9 +176,9 @@ button{
   gap:7px;
 }
 
-/* =========================================================
+/* =========================
    MAIN
-========================================================= */
+========================= */
 
 .main{
   flex:1;
@@ -262,9 +262,9 @@ button{
   color:var(--green);
 }
 
-/* =========================================================
+/* =========================
    STATUS
-========================================================= */
+========================= */
 
 .statusbar{
   min-height:44px;
@@ -282,6 +282,7 @@ button{
   height:8px;
   border-radius:50%;
   background:#64748b;
+  flex-shrink:0;
 }
 
 .status-dot.ok{
@@ -290,6 +291,10 @@ button{
 
 .status-dot.error{
   background:var(--red);
+}
+
+.status-dot.wait{
+  background:var(--orange);
 }
 
 .status-text{
@@ -302,9 +307,9 @@ button{
   text-overflow:ellipsis;
 }
 
-/* =========================================================
+/* =========================
    CHAT
-========================================================= */
+========================= */
 
 .chat-area{
   flex:1;
@@ -371,9 +376,9 @@ button{
   font-size:12px;
 }
 
-/* =========================================================
+/* =========================
    MESSAGE
-========================================================= */
+========================= */
 
 .message{
   display:flex;
@@ -478,9 +483,9 @@ button{
   background:var(--panel2);
 }
 
-/* =========================================================
+/* =========================
    AUDIO
-========================================================= */
+========================= */
 
 .audio{
   display:none;
@@ -530,9 +535,9 @@ button{
   white-space:nowrap;
 }
 
-/* =========================================================
+/* =========================
    TYPING
-========================================================= */
+========================= */
 
 .typing{
   display:flex;
@@ -556,13 +561,57 @@ button{
 }
 
 @keyframes typing{
-  0%,100%{opacity:.25;transform:none}
-  50%{opacity:1;transform:translateY(-4px)}
+  0%,100%{
+    opacity:.25;
+    transform:none
+  }
+  50%{
+    opacity:1;
+    transform:translateY(-4px)
+  }
 }
 
-/* =========================================================
-   SCROLL BUTTON
-========================================================= */
+/* =========================
+   WAITING
+========================= */
+
+.waiting{
+  margin:8px 0 18px 48px;
+  padding:11px 13px;
+  border:1px solid rgba(245,158,11,.2);
+  background:rgba(245,158,11,.06);
+  border-radius:12px;
+  color:#fbbf24;
+  font-size:10px;
+  display:none;
+}
+
+.waiting.show{
+  display:block;
+}
+
+.waiting strong{
+  color:#fff;
+}
+
+.waiting-progress{
+  height:3px;
+  background:rgba(255,255,255,.08);
+  border-radius:20px;
+  margin-top:8px;
+  overflow:hidden;
+}
+
+.waiting-progress-bar{
+  height:100%;
+  width:0%;
+  background:var(--orange);
+  transition:width .2s linear;
+}
+
+/* =========================
+   SCROLL
+========================= */
 
 .scroll-button{
   position:absolute;
@@ -602,9 +651,9 @@ button{
   place-items:center;
 }
 
-/* =========================================================
+/* =========================
    COMPOSER
-========================================================= */
+========================= */
 
 .composer{
   flex-shrink:0;
@@ -665,6 +714,12 @@ button{
   border-color:rgba(34,197,94,.25);
 }
 
+.btn-orange{
+  color:#ffd48a;
+  background:rgba(245,158,11,.1);
+  border-color:rgba(245,158,11,.25);
+}
+
 .composer-row{
   display:flex;
   gap:7px;
@@ -699,9 +754,92 @@ button{
   background:var(--red);
 }
 
-/* =========================================================
+/* =========================
+   INTERVENTION
+========================= */
+
+.intervention{
+  border:1px solid rgba(245,158,11,.22);
+  background:rgba(245,158,11,.055);
+  border-radius:13px;
+  padding:8px;
+  margin-bottom:8px;
+}
+
+.intervention-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:6px;
+}
+
+.intervention-title{
+  color:#fbbf24;
+  font-size:10px;
+  font-weight:800;
+}
+
+.intervention-help{
+  color:var(--muted);
+  font-size:8px;
+}
+
+.intervention-row{
+  display:flex;
+  gap:7px;
+}
+
+.intervention-input{
+  flex:1;
+  min-width:0;
+  min-height:40px;
+  max-height:100px;
+  resize:none;
+  border:1px solid rgba(245,158,11,.2);
+  background:#07111d;
+  color:#fff;
+  border-radius:10px;
+  padding:9px 11px;
+  outline:none;
+  font-size:11px;
+}
+
+.intervention-input:focus{
+  border-color:rgba(245,158,11,.5);
+}
+
+.intervention-button{
+  width:70px;
+  border:1px solid rgba(245,158,11,.3);
+  background:rgba(245,158,11,.13);
+  color:#ffd48a;
+  border-radius:10px;
+  font-size:10px;
+  font-weight:800;
+}
+
+/* =========================
+   FILE STATUS
+========================= */
+
+.file-status{
+  display:none;
+  padding:7px 9px;
+  margin-bottom:7px;
+  border-radius:9px;
+  background:rgba(34,197,94,.07);
+  border:1px solid rgba(34,197,94,.15);
+  color:#86efac;
+  font-size:9px;
+}
+
+.file-status.show{
+  display:block;
+}
+
+/* =========================
    DRAWER
-========================================================= */
+========================= */
 
 .overlay{
   position:fixed;
@@ -799,9 +937,9 @@ textarea.form-input{
   margin-top:8px;
 }
 
-/* =========================================================
+/* =========================
    TOAST
-========================================================= */
+========================= */
 
 .toast{
   position:fixed;
@@ -835,10 +973,6 @@ textarea.form-input{
 .toast.success{
   border-color:rgba(34,197,94,.35);
 }
-
-/* =========================================================
-   MOBILE
-========================================================= */
 
 @media(max-width:850px){
 
@@ -934,22 +1068,14 @@ textarea.form-input{
   .audio-state{
     display:none;
   }
-}
 
-@media(max-width:420px){
-
-  .top-right .status-count{
-    display:none;
+  .waiting{
+    margin-left:0;
   }
 
-  .status-text{
-    font-size:9px;
+  .intervention-button{
+    width:60px;
   }
-
-  .audio-speed{
-    width:48px;
-  }
-
 }
 </style>
 </head>
@@ -957,10 +1083,6 @@ textarea.form-input{
 <body>
 
 <div class="app">
-
-<!-- ======================================================
-     SIDEBAR
-====================================================== -->
 
 <aside class="sidebar" id="sidebar">
 
@@ -986,9 +1108,7 @@ textarea.form-input{
       class="btn btn-primary"
       style="width:100%;margin-top:9px"
       onclick="openCharacter()">
-
       ＋ إضافة شخصية
-
     </button>
 
   </div>
@@ -1004,13 +1124,10 @@ textarea.form-input{
       id="sideAudioButton"
       style="width:100%"
       onclick="toggleAutoAudio()">
-
       🔊 القراءة التلقائية
-
     </button>
 
     <div style="margin-top:10px">
-
       <label class="label">
         سرعة الصوت
       </label>
@@ -1024,7 +1141,6 @@ textarea.form-input{
         value="1"
         style="width:100%"
       >
-
     </div>
 
   </div>
@@ -1051,217 +1167,259 @@ textarea.form-input{
 
 </aside>
 
-
-<!-- ======================================================
-     MAIN
-====================================================== -->
-
 <main class="main">
 
-  <header class="topbar">
+<header class="topbar">
 
-    <div class="top-left">
+  <div class="top-left">
 
-      <button
-        class="btn menu"
-        onclick="toggleSidebar()">
+    <button
+      class="btn menu"
+      onclick="toggleSidebar()">
+      ☰
+    </button>
 
-        ☰
-
-      </button>
-
-      <div class="title-icon">
-        🧪
-      </div>
-
-      <div class="title">
-        <h1>مختبر الحلول</h1>
-        <small>تحليل → اختبار → نقد → قرار</small>
-      </div>
-
+    <div class="title-icon">
+      🧪
     </div>
 
-    <div class="top-right">
-
-      <span
-        class="status-count"
-        id="messageCount"
-        style="font-size:9px;color:var(--muted)">
-        0 رسالة
-      </span>
-
-      <button
-        class="speaker"
-        id="speakerButton"
-        onclick="toggleAutoAudio()"
-        title="القراءة التلقائية">
-
-        🔊
-
-      </button>
-
-      <button
-        class="btn"
-        onclick="openSettings()">
-
-        ⚙
-
-      </button>
-
+    <div class="title">
+      <h1>مختبر الحلول</h1>
+      <small>تحليل → اختبار → نقد → قرار</small>
     </div>
-
-  </header>
-
-
-  <div class="statusbar">
-
-    <span
-      class="status-dot"
-      id="statusDot">
-    </span>
-
-    <span
-      class="status-text"
-      id="statusText">
-      جاهز — اكتب المشكلة للبدء
-    </span>
 
   </div>
 
+  <div class="top-right">
 
-  <div class="chat-area">
-
-    <div
-      class="chat"
-      id="chat">
-
-      <div
-        class="empty"
-        id="empty">
-
-        <div class="empty-box">
-
-          <div class="empty-logo">
-            🧪
-          </div>
-
-          <h2>
-            مختبر الوكلاء جاهز
-          </h2>
-
-          <p>
-            اكتب المشكلة، ثم سيضع النظام خطة
-            للتحليل قبل أن يبدأ الوكلاء بالعمل.
-          </p>
-
-        </div>
-
-      </div>
-
-    </div>
-
+    <span
+      id="messageCount"
+      style="font-size:9px;color:var(--muted)">
+      0 رسالة
+    </span>
 
     <button
-      class="scroll-button"
-      id="scrollButton"
-      onclick="goBottom()">
+      class="speaker"
+      id="speakerButton"
+      onclick="toggleAutoAudio()"
+      title="القراءة التلقائية">
+      🔊
+    </button>
 
-      ↓
-
-      <span
-        class="new-count"
-        id="newCount">
-      </span>
-
+    <button
+      class="btn"
+      onclick="openSettings()">
+      ⚙
     </button>
 
   </div>
 
+</header>
 
-  <div class="composer">
+<div class="statusbar">
 
-    <div class="tools">
+  <span
+    class="status-dot"
+    id="statusDot">
+  </span>
 
-      <select
-        class="select"
-        id="rounds">
+  <span
+    class="status-text"
+    id="statusText">
+    جاهز — اكتب المشكلة للبدء
+  </span>
 
-        <option value="3">3 جولات</option>
-        <option value="5" selected>5 جولات</option>
-        <option value="7">7 جولات</option>
+</div>
 
-      </select>
+<div class="chat-area">
 
-      <button
-        class="btn"
-        onclick="document.getElementById('file').click()">
+  <div class="chat" id="chat">
 
-        📎 ملف
+    <div class="empty" id="empty">
 
-      </button>
+      <div class="empty-box">
 
-      <input
-        type="file"
-        id="file"
-        hidden
-        accept=".txt,.md,.json,.csv"
-        onchange="loadFile(this)"
-      >
+        <div class="empty-logo">
+          🧪
+        </div>
 
-      <button
-        class="btn"
-        id="pauseButton"
-        style="display:none"
-        onclick="togglePause()">
+        <h2>
+          مختبر الوكلاء جاهز
+        </h2>
 
-        ⏸ إيقاف مؤقت
+        <p>
+          اكتب المشكلة، وسيبني النظام خطة قبل بدء الوكلاء.
+          يمكنك أيضاً التدخل في أي لحظة وتغيير اتجاه الحوار.
+        </p>
 
-      </button>
-
-      <button
-        class="btn btn-danger"
-        id="abortButton"
-        style="display:none"
-        onclick="abortLab()">
-
-        ■ إيقاف
-
-      </button>
+      </div>
 
     </div>
 
+  </div>
 
-    <div class="composer-row">
+  <div class="waiting" id="waiting">
+
+    <div>
+      ⏳ <strong id="waitingText">انتظار الوكيل التالي...</strong>
+    </div>
+
+    <div class="waiting-progress">
+      <div
+        class="waiting-progress-bar"
+        id="waitingProgress">
+      </div>
+    </div>
+
+  </div>
+
+  <button
+    class="scroll-button"
+    id="scrollButton"
+    onclick="goBottom()">
+
+    ↓
+
+    <span
+      class="new-count"
+      id="newCount">
+    </span>
+
+  </button>
+
+</div>
+
+<div class="composer">
+
+  <!-- التدخل البشري ذو الأولوية -->
+  <div class="intervention">
+
+    <div class="intervention-header">
+
+      <span class="intervention-title">
+        ⚡ التدخل — أولوية المستخدم
+      </span>
+
+      <span class="intervention-help">
+        يمكن استخدامه أثناء المناظرة
+      </span>
+
+    </div>
+
+    <div class="intervention-row">
 
       <textarea
-        id="input"
-        class="message-input"
+        id="interventionInput"
+        class="intervention-input"
         rows="1"
-        placeholder="اكتب المشكلة التي تريد حلها..."
-        onkeydown="handleInputKey(event)"
+        placeholder="اسأل، صحح، غيّر الموضوع أو وجّه الوكلاء..."
+        onkeydown="handleInterventionKey(event)"
       ></textarea>
 
       <button
-        class="btn btn-primary send"
-        id="sendButton"
-        onclick="startLab()">
-
-        ▶
-
+        class="intervention-button"
+        onclick="submitIntervention()">
+        إرسال
       </button>
 
     </div>
 
   </div>
 
-</main>
+  <div
+    class="file-status"
+    id="fileStatus">
+  </div>
+
+  <div class="tools">
+
+    <select
+      class="select"
+      id="rounds">
+
+      <option value="1">1 جولة</option>
+      <option value="2">2 جولات</option>
+      <option value="3">3 جولات</option>
+      <option value="5" selected>5 جولات</option>
+      <option value="7">7 جولات</option>
+
+    </select>
+
+    <!-- الحد الآن يصل إلى دقيقتين -->
+    <select
+      class="select"
+      id="speakerDelay">
+
+      <option value="0">0 ثانية</option>
+      <option value="2">2 ث</option>
+      <option value="5">5 ث</option>
+      <option value="10">10 ث</option>
+      <option value="20">20 ث</option>
+      <option value="30">30 ث</option>
+      <option value="45">45 ث</option>
+      <option value="60" selected>60 ث</option>
+      <option value="90">90 ث</option>
+      <option value="120">120 ث</option>
+
+    </select>
+
+    <button
+      class="btn"
+      onclick="document.getElementById('file').click()">
+      📎 ملف
+    </button>
+
+    <input
+      type="file"
+      id="file"
+      hidden
+      accept=".txt,.md,.json,.csv,.pdf"
+      onchange="loadFile(this)"
+    >
+
+    <button
+      class="btn"
+      id="pauseButton"
+      style="display:none"
+      onclick="togglePause()">
+      ⏸ إيقاف مؤقت
+    </button>
+
+    <button
+      class="btn btn-danger"
+      id="abortButton"
+      style="display:none"
+      onclick="abortLab()">
+      ■ إيقاف
+    </button>
+
+  </div>
+
+  <div class="composer-row">
+
+    <textarea
+      id="input"
+      class="message-input"
+      rows="1"
+      placeholder="اكتب المشكلة التي تريد حلها..."
+      onkeydown="handleInputKey(event)"
+    ></textarea>
+
+    <button
+      class="btn btn-primary send"
+      id="sendButton"
+      onclick="startLab()">
+      ▶
+    </button>
+
+  </div>
 
 </div>
 
+</main>
+</div>
 
-<!-- ======================================================
-     SETTINGS DRAWER
-====================================================== -->
+<!-- SETTINGS -->
 
 <div
   class="overlay"
@@ -1279,9 +1437,7 @@ textarea.form-input{
       <button
         class="btn"
         onclick="closeDrawer('settingsOverlay')">
-
         ✕
-
       </button>
 
     </div>
@@ -1375,7 +1531,7 @@ textarea.form-input{
           id="audioMode">
 
           <option value="auto">
-            Piper ثم صوت المتصفح تلقائياً
+            Piper ثم صوت المتصفح
           </option>
 
           <option value="piper">
@@ -1394,27 +1550,21 @@ textarea.form-input{
         class="btn btn-primary"
         style="width:100%"
         onclick="saveSettings()">
-
         حفظ
-
       </button>
 
       <button
         class="btn"
         style="width:100%;margin-top:7px"
         onclick="testAudio()">
-
         🔊 اختبار الصوت
-
       </button>
 
       <button
         class="btn"
         style="width:100%;margin-top:7px"
         onclick="testModel()">
-
         اختبار النموذج
-
       </button>
 
       <div
@@ -1433,10 +1583,7 @@ textarea.form-input{
 
 </div>
 
-
-<!-- ======================================================
-     CHARACTERS DRAWER
-====================================================== -->
+<!-- CHARACTERS -->
 
 <div
   class="overlay"
@@ -1454,9 +1601,7 @@ textarea.form-input{
       <button
         class="btn"
         onclick="closeDrawer('charactersOverlay')">
-
         ✕
-
       </button>
 
     </div>
@@ -1467,9 +1612,7 @@ textarea.form-input{
         class="btn btn-primary"
         style="width:100%;margin-bottom:10px"
         onclick="openCharacter()">
-
         ＋ شخصية جديدة
-
       </button>
 
       <div id="characterManager"></div>
@@ -1480,10 +1623,7 @@ textarea.form-input{
 
 </div>
 
-
-<!-- ======================================================
-     CHARACTER EDITOR
-====================================================== -->
+<!-- CHARACTER EDITOR -->
 
 <div
   class="overlay"
@@ -1497,17 +1637,13 @@ textarea.form-input{
       <strong
         class="drawer-title"
         id="editorTitle">
-
         شخصية جديدة
-
       </strong>
 
       <button
         class="btn"
         onclick="closeDrawer('characterEditorOverlay')">
-
         ✕
-
       </button>
 
     </div>
@@ -1573,7 +1709,7 @@ textarea.form-input{
           class="form-input"
           id="characterVoice">
 
-          <option>
+          <option value="ar_JO-kareem-medium">
             ar_JO-kareem-medium
           </option>
 
@@ -1599,9 +1735,7 @@ textarea.form-input{
         class="btn btn-primary"
         style="width:100%"
         onclick="saveCharacter()">
-
         حفظ الشخصية
-
       </button>
 
     </div>
@@ -1610,7 +1744,6 @@ textarea.form-input{
 
 </div>
 
-
 <div
   class="toast"
   id="toast">
@@ -1618,8 +1751,9 @@ textarea.form-input{
 
 
 <script>
+
 /* =========================================================
-   OPTIONAL MARKDOWN
+   MARKDOWN بسيط وآمن
 ========================================================= */
 
 function markdown(text){
@@ -1631,18 +1765,10 @@ function markdown(text){
       .replace(/>/g,"&gt;");
 
   return escaped
-    .replace(
-      /```([\s\S]*?)```/g,
-      "<pre>$1</pre>"
-    )
-    .replace(
-      /\*\*(.*?)\*\*/g,
-      "<strong>$1</strong>"
-    )
-    .replace(
-      /\n/g,
-      "<br>"
-    );
+    .replace(/```([\s\S]*?)```/g,"<pre>$1</pre>")
+    .replace(/\*\*(.*?)\*\*/g,"<strong>$1</strong>")
+    .replace(/\n/g,"<br>");
+
 }
 
 
@@ -1650,7 +1776,7 @@ function markdown(text){
    DEFAULT CHARACTERS
 ========================================================= */
 
-const DEFAULT_CHARACTERS = [
+const DEFAULT_CHARACTERS=[
 
   {
     id:"analyst",
@@ -1659,7 +1785,7 @@ const DEFAULT_CHARACTERS = [
     color:"#4f8cff",
     voice:"ar_JO-kareem-medium",
     prompt:
-      "فكك المشكلة إلى حقائق، قيود، افتراضات، معلومات ناقصة ومعيار نجاح. لا تخترع معلومات."
+      "فكك المشكلة إلى حقائق وقيود وافتراضات ومعلومات ناقصة ومعيار نجاح. لا تخترع معلومات."
   },
 
   {
@@ -1679,7 +1805,7 @@ const DEFAULT_CHARACTERS = [
     color:"#f59e0b",
     voice:"ar_JO-kareem-medium",
     prompt:
-      "حوّل النتائج إلى خطوات تنفيذية واضحة، وحدد الاعتماديات والمخاطر وطريقة القياس."
+      "حوّل النتائج إلى خطوات تنفيذية واضحة وحدد الاعتماديات والمخاطر وطريقة القياس."
   },
 
   {
@@ -1689,7 +1815,7 @@ const DEFAULT_CHARACTERS = [
     color:"#ef4444",
     voice:"ar_JO-kareem-medium",
     prompt:
-      "ابحث عن الثغرات والافتراضات الخفية والأخطاء المنطقية، واقترح اختبارات لدحضها."
+      "ابحث عن الثغرات والافتراضات الخفية والأخطاء المنطقية واقترح اختبارات لدحضها."
   },
 
   {
@@ -1709,7 +1835,7 @@ const DEFAULT_CHARACTERS = [
     color:"#06b6d4",
     voice:"ar_JO-kareem-medium",
     prompt:
-      "راجع كل النتائج، ثم أصدر حكماً نهائياً يتضمن الحل، الأدلة، المخاطر، الاختبار الأول ومقياس النجاح."
+      "راجع كل النتائج وأصدر حكماً نهائياً يتضمن الحل والأدلة والمخاطر والاختبار الأول ومقياس النجاح."
   }
 
 ];
@@ -1719,7 +1845,7 @@ const DEFAULT_CHARACTERS = [
    STATE
 ========================================================= */
 
-const state = {
+const state={
 
   settings:{
     apiUrl:"",
@@ -1734,7 +1860,11 @@ const state = {
 
   messages:[],
 
-  fileText:"",
+  file:{
+    name:"",
+    type:"",
+    text:""
+  },
 
   running:false,
 
@@ -1742,11 +1872,25 @@ const state = {
 
   abortController:null,
 
+  activeRequestController:null,
+
   autoAudio:false,
 
   audio:null,
 
   audioUrlCache:new Map(),
+
+  /*
+     تدخلات المستخدم.
+     كل عنصر هنا له أولوية أعلى من السياق العادي.
+  */
+  interventions:[],
+
+  /*
+     إذا تدخل المستخدم أثناء طلب API
+     يتم إيقاف الطلب الحالي.
+  */
+  interventionInterrupt:false,
 
   scroll:{
     atBottom:true,
@@ -1792,40 +1936,59 @@ function loadStorage(){
 
   try{
 
-    const settings =
+    const saved=
       JSON.parse(
-        localStorage.getItem("ai_lab_settings")
-        || "{}"
+        localStorage.getItem(
+          "ai_lab_settings"
+        ) || "{}"
       );
 
     state.settings={
       ...state.settings,
-      ...settings
+      ...saved
     };
 
   }catch{}
 
   try{
 
-    state.characters =
+    const saved=
       JSON.parse(
-        localStorage.getItem("ai_lab_characters")
-        || "null"
-      )
-      || structuredClone(DEFAULT_CHARACTERS);
+        localStorage.getItem(
+          "ai_lab_characters"
+        ) || "null"
+      );
+
+    state.characters=
+      Array.isArray(saved)
+      ? saved
+      : DEFAULT_CHARACTERS.map(
+          c=>({...c})
+        );
 
   }catch{
 
-    state.characters =
-      structuredClone(DEFAULT_CHARACTERS);
+    state.characters=
+      DEFAULT_CHARACTERS.map(
+        c=>({...c})
+      );
 
   }
 
-  $("#apiUrl").value=state.settings.apiUrl;
-  $("#apiKey").value=state.settings.apiKey;
-  $("#model").value=state.settings.model;
-  $("#ttsUrl").value=state.settings.ttsUrl;
-  $("#audioMode").value=state.settings.audioMode;
+  $("#apiUrl").value=
+    state.settings.apiUrl;
+
+  $("#apiKey").value=
+    state.settings.apiKey;
+
+  $("#model").value=
+    state.settings.model;
+
+  $("#ttsUrl").value=
+    state.settings.ttsUrl;
+
+  $("#audioMode").value=
+    state.settings.audioMode;
 
   setSelectValue(
     $("#voice"),
@@ -1840,29 +2003,45 @@ function loadStorage(){
 }
 
 
+/* =========================================================
+   SETTINGS
+========================================================= */
+
 function saveSettings(){
 
-  state.settings.apiUrl =
-    $("#apiUrl").value.trim().replace(/\/+$/,"");
+  state.settings.apiUrl=
+    $("#apiUrl")
+      .value
+      .trim()
+      .replace(/\/+$/,"");
 
-  state.settings.apiKey =
-    $("#apiKey").value.trim();
+  state.settings.apiKey=
+    $("#apiKey")
+      .value
+      .trim();
 
-  state.settings.model =
-    $("#model").value.trim();
+  state.settings.model=
+    $("#model")
+      .value
+      .trim();
 
-  state.settings.ttsUrl =
-    $("#ttsUrl").value.trim().replace(/\/+$/,"");
+  state.settings.ttsUrl=
+    $("#ttsUrl")
+      .value
+      .trim()
+      .replace(/\/+$/,"");
 
-  state.settings.voice =
+  state.settings.voice=
     $("#voice").value;
 
-  state.settings.audioMode =
+  state.settings.audioMode=
     $("#audioMode").value;
 
   localStorage.setItem(
     "ai_lab_settings",
-    JSON.stringify(state.settings)
+    JSON.stringify(
+      state.settings
+    )
   );
 
   closeDrawer("settingsOverlay");
@@ -1897,9 +2076,9 @@ function renderCharacters(){
       <div
         class="avatar"
         style="background:${safe(c.color)}">
-
-        ${safe(c.name.charAt(0))}
-
+        ${safe(
+          (c.name || "?").charAt(0)
+        )}
       </div>
 
       <div class="character-info">
@@ -1924,7 +2103,8 @@ function renderCharacters(){
 
 function renderCharacterManager(){
 
-  const root=$("#characterManager");
+  const root=
+    $("#characterManager");
 
   if(!root)
     return;
@@ -1940,14 +2120,17 @@ function renderCharacterManager(){
 
     item.innerHTML=`
 
-      <div style="display:flex;align-items:center;gap:8px">
+      <div style="
+        display:flex;
+        align-items:center;
+        gap:8px">
 
         <div
           class="avatar"
           style="background:${safe(c.color)}">
-
-          ${safe(c.name.charAt(0))}
-
+          ${safe(
+            (c.name || "?").charAt(0)
+          )}
         </div>
 
         <div style="min-width:0">
@@ -1956,7 +2139,9 @@ function renderCharacterManager(){
             ${safe(c.name)}
           </strong>
 
-          <div style="color:var(--muted);font-size:9px">
+          <div style="
+            color:var(--muted);
+            font-size:9px">
             ${safe(c.role)}
           </div>
 
@@ -1968,18 +2153,14 @@ function renderCharacterManager(){
 
         <button
           class="btn"
-          onclick="openCharacter('${c.id}')">
-
+          onclick="openCharacter('${safeAttr(c.id)}')">
           تعديل
-
         </button>
 
         <button
           class="btn btn-danger"
-          onclick="deleteCharacter('${c.id}')">
-
+          onclick="deleteCharacter('${safeAttr(c.id)}')">
           حذف
-
         </button>
 
       </div>
@@ -2006,32 +2187,34 @@ function openCharacters(){
 
 function openCharacter(id=""){
 
-  const c =
+  const c=
     state.characters.find(
       x=>x.id===id
     );
 
-  $("#characterId").value =
+  $("#characterId").value=
     c?.id || "";
 
-  $("#characterName").value =
+  $("#characterName").value=
     c?.name || "";
 
-  $("#characterRole").value =
+  $("#characterRole").value=
     c?.role || "";
 
-  $("#characterColor").value =
+  $("#characterColor").value=
     c?.color || "#4f8cff";
 
-  $("#characterPrompt").value =
+  $("#characterPrompt").value=
     c?.prompt || "";
 
-  $("#editorTitle").textContent =
-    c ?
-    "تعديل الشخصية":
-    "إضافة شخصية";
+  $("#editorTitle").textContent=
+    c
+      ? "تعديل الشخصية"
+      : "إضافة شخصية";
 
-  closeDrawer("charactersOverlay");
+  closeDrawer(
+    "charactersOverlay"
+  );
 
   $("#characterEditorOverlay")
     .classList.add("show");
@@ -2041,7 +2224,7 @@ function openCharacter(id=""){
 
 function saveCharacter(){
 
-  const id =
+  const id=
     $("#characterId").value ||
     "character_"+Date.now();
 
@@ -2050,27 +2233,33 @@ function saveCharacter(){
     id,
 
     name:
-      $("#characterName").value.trim()
-      || "شخصية جديدة",
+      $("#characterName")
+        .value
+        .trim() ||
+      "شخصية جديدة",
 
     role:
-      $("#characterRole").value.trim()
-      || "وكيل عام",
+      $("#characterRole")
+        .value
+        .trim() ||
+      "وكيل عام",
 
     color:
       $("#characterColor").value,
 
     voice:
-      $("#characterVoice").value
-      || state.settings.voice,
+      $("#characterVoice").value ||
+      state.settings.voice,
 
     prompt:
-      $("#characterPrompt").value.trim()
-      || "حلل المشكلة بموضوعية وقدم نتيجة عملية."
+      $("#characterPrompt")
+        .value
+        .trim() ||
+      "حلل المشكلة بموضوعية وقدم نتيجة عملية."
 
   };
 
-  const index =
+  const index=
     state.characters.findIndex(
       x=>x.id===id
     );
@@ -2082,14 +2271,18 @@ function saveCharacter(){
 
   localStorage.setItem(
     "ai_lab_characters",
-    JSON.stringify(state.characters)
+    JSON.stringify(
+      state.characters
+    )
   );
 
   renderCharacters();
 
   renderCharacterManager();
 
-  closeDrawer("characterEditorOverlay");
+  closeDrawer(
+    "characterEditorOverlay"
+  );
 
   toast(
     "تم حفظ الشخصية",
@@ -2113,18 +2306,22 @@ function deleteCharacter(id){
   }
 
   if(
-    !confirm("هل تريد حذف الشخصية؟")
+    !confirm(
+      "هل تريد حذف الشخصية؟"
+    )
   )
     return;
 
-  state.characters =
+  state.characters=
     state.characters.filter(
       c=>c.id!==id
     );
 
   localStorage.setItem(
     "ai_lab_characters",
-    JSON.stringify(state.characters)
+    JSON.stringify(
+      state.characters
+    )
   );
 
   renderCharacters();
@@ -2157,11 +2354,6 @@ function toggleAutoAudio(){
 
   }
 
-  /*
-     هذا الضغط نفسه يعتبر User Gesture.
-     نستخدمه لتجهيز نظام الصوت.
-  */
-
   primeBrowserAudio();
 
   toast(
@@ -2186,22 +2378,20 @@ function updateAudioUI(){
       state.autoAudio
     );
 
-  $("#sideAudioButton").textContent =
-    state.autoAudio
-      ? "🟢 ACTIVE — القراءة التلقائية"
-      : "🔊 القراءة التلقائية";
+  $("#sideAudioButton")
+    .textContent=
+      state.autoAudio
+        ? "🟢 ACTIVE — القراءة التلقائية"
+        : "🔊 القراءة التلقائية";
 
 }
 
 
 function primeBrowserAudio(){
 
-  /*
-     SpeechSynthesis لا يحتاج تحميل ملف.
-     مجرد استدعاء voices يجهز API في بعض المتصفحات.
-  */
-
-  if("speechSynthesis" in window){
+  if(
+    "speechSynthesis" in window
+  ){
 
     window.speechSynthesis
       .getVoices();
@@ -2211,9 +2401,13 @@ function primeBrowserAudio(){
 }
 
 
-async function speak(text,character,audio){
+async function speak(
+  text,
+  character,
+  audio
+){
 
-  const clean =
+  const clean=
     cleanSpeechText(text);
 
   if(!clean)
@@ -2221,10 +2415,10 @@ async function speak(text,character,audio){
 
   stopAudio();
 
-  const mode =
+  const mode=
     state.settings.audioMode;
 
-  const speed =
+  const speed=
     parseFloat(
       $("#globalSpeed").value
     ) || 1;
@@ -2234,15 +2428,11 @@ async function speak(text,character,audio){
 
   audio.play.disabled=true;
 
-  /*
-     1. Piper
-  */
-
   if(mode!=="browser"){
 
     try{
 
-      const blob =
+      const blob=
         await piperRequest(
           clean,
           character,
@@ -2251,25 +2441,30 @@ async function speak(text,character,audio){
 
       if(blob){
 
-        const url =
+        const url=
           URL.createObjectURL(blob);
 
-        const player =
+        const player=
           new Audio(url);
 
         state.audio=player;
 
         player.onloadedmetadata=()=>{
-          audio.range.max =
+          audio.range.max=
             player.duration || 100;
         };
 
         player.ontimeupdate=()=>{
-          if(player.duration)
-            audio.range.value =
+
+          if(player.duration){
+
+            audio.range.value=
               player.currentTime /
               player.duration *
               100;
+
+          }
+
         };
 
         player.onended=()=>{
@@ -2300,17 +2495,26 @@ async function speak(text,character,audio){
         };
 
         audio.play.onclick=()=>{
+
           if(player.paused)
             player.play();
           else
             player.pause();
+
         };
 
         audio.range.oninput=()=>{
-          if(player.duration)
-            player.currentTime =
+
+          if(player.duration){
+
+            player.currentTime=
               player.duration *
-              Number(audio.range.value)/100;
+              Number(
+                audio.range.value
+              )/100;
+
+          }
+
         };
 
         await player.play();
@@ -2333,11 +2537,6 @@ async function speak(text,character,audio){
 
         audio.play.disabled=false;
 
-        toast(
-          "Piper غير متاح. تحقق من عنوان الخدمة وCORS.",
-          "error"
-        );
-
         return;
 
       }
@@ -2345,10 +2544,6 @@ async function speak(text,character,audio){
     }
 
   }
-
-  /*
-     2. Browser fallback
-  */
 
   browserSpeak(
     clean,
@@ -2365,7 +2560,9 @@ function browserSpeak(
   audio
 ){
 
-  if(!("speechSynthesis" in window)){
+  if(
+    !("speechSynthesis" in window)
+  ){
 
     audio.state.textContent=
       "المتصفح لا يدعم الصوت";
@@ -2376,8 +2573,10 @@ function browserSpeak(
 
   }
 
-  const utter =
-    new SpeechSynthesisUtterance(text);
+  const utter=
+    new SpeechSynthesisUtterance(
+      text
+    );
 
   utter.lang="ar-SA";
 
@@ -2387,13 +2586,17 @@ function browserSpeak(
 
   utter.volume=1;
 
-  const voices =
-    window.speechSynthesis.getVoices();
+  const voices=
+    window.speechSynthesis
+      .getVoices();
 
-  const arabic =
+  const arabic=
     voices.find(
-      v=>v.lang &&
-      v.lang.toLowerCase().startsWith("ar")
+      v=>
+        v.lang &&
+        v.lang
+          .toLowerCase()
+          .startsWith("ar")
     );
 
   if(arabic)
@@ -2414,24 +2617,30 @@ function browserSpeak(
   utter.onend=()=>{
     audio.state.textContent=
       "اكتمل";
-
     state.audio=null;
   };
 
   utter.onerror=()=>{
     audio.state.textContent=
       "تعذر تشغيل الصوت";
-
     state.audio=null;
   };
 
   audio.play.onclick=()=>{
+
     if(
       window.speechSynthesis.speaking
-    )
-      window.speechSynthesis.pause();
-    else
-      window.speechSynthesis.resume();
+    ){
+
+      if(
+        window.speechSynthesis.paused
+      )
+        window.speechSynthesis.resume();
+      else
+        window.speechSynthesis.pause();
+
+    }
+
   };
 
   audio.play.disabled=false;
@@ -2449,40 +2658,13 @@ async function piperRequest(
   speed
 ){
 
-  const base =
+  const base=
     state.settings.ttsUrl
       .replace(/\/+$/,"");
 
-  const voice =
+  const voice=
     character?.voice ||
     state.settings.voice;
-
-  const key =
-    JSON.stringify({
-      base,
-      voice,
-      speed,
-      text
-    });
-
-  if(
-    state.audioUrlCache.has(key)
-  ){
-
-    const cached =
-      state.audioUrlCache.get(key);
-
-    const response =
-      await fetch(cached);
-
-    return response.blob();
-
-  }
-
-  /*
-     نجرب أكثر من API شائع للخدمات
-     المخصصة، بدلاً من افتراض Endpoint واحد.
-  */
 
   const endpoints=[
 
@@ -2523,7 +2705,7 @@ async function piperRequest(
 
     try{
 
-      const response =
+      const response=
         await fetch(
           endpoint.url,
           {
@@ -2543,7 +2725,7 @@ async function piperRequest(
 
       if(!response.ok){
 
-        lastError =
+        lastError=
           new Error(
             `HTTP ${response.status}`
           );
@@ -2552,43 +2734,23 @@ async function piperRequest(
 
       }
 
-      const type =
+      const type=
         response.headers
-          .get("content-type")
-          || "";
-
-      /*
-         WAV/MP3 مباشرة
-      */
+          .get("content-type") ||
+        "";
 
       if(
         type.includes("audio")
       ){
 
-        const blob =
-          await response.blob();
-
-        const url =
-          URL.createObjectURL(blob);
-
-        state.audioUrlCache.set(
-          key,
-          url
-        );
-
-        return blob;
+        return response.blob();
 
       }
 
-      /*
-         بعض الخدمات ترجع JSON
-         يحتوي على audio URL.
-      */
-
-      const data =
+      const data=
         await response.json();
 
-      const audioUrl =
+      const audioUrl=
         data.audio_url ||
         data.url ||
         data.audio ||
@@ -2596,30 +2758,17 @@ async function piperRequest(
 
       if(audioUrl){
 
-        const audioResponse =
-          await fetch(
-            new URL(
-              audioUrl,
-              base
-            ).href
-          );
+        const target=
+          new URL(
+            audioUrl,
+            base
+          ).href;
 
-        if(audioResponse.ok){
+        const audioResponse=
+          await fetch(target);
 
-          const blob =
-            await audioResponse.blob();
-
-          const url =
-            URL.createObjectURL(blob);
-
-          state.audioUrlCache.set(
-            key,
-            url
-          );
-
-          return blob;
-
-        }
+        if(audioResponse.ok)
+          return audioResponse.blob();
 
       }
 
@@ -2633,7 +2782,9 @@ async function piperRequest(
 
   throw(
     lastError ||
-    new Error("Piper endpoint غير معروف")
+    new Error(
+      "تعذر الوصول إلى خدمة TTS"
+    )
   );
 
 }
@@ -2681,18 +2832,23 @@ function addMessage(
   $("#empty")?.remove();
 
   const message={
+
     id:
       crypto.randomUUID
         ? crypto.randomUUID()
-        : String(Date.now()+Math.random()),
+        : String(
+            Date.now()+
+            Math.random()
+          ),
 
     characterId:
-      character?.id || "system",
+      character?.id ||
+      "system",
 
     text,
 
-    time:
-      Date.now()
+    time:Date.now()
+
   };
 
   state.messages.push(message);
@@ -2710,10 +2866,12 @@ function addMessage(
   avatar.className="avatar";
 
   avatar.style.background=
-    character?.color || "#64748b";
+    character?.color ||
+    "#64748b";
 
   avatar.textContent=
-    character?.name?.charAt(0) || "ن";
+    character?.name?.charAt(0) ||
+    "ن";
 
   const body=
     document.createElement("div");
@@ -2729,17 +2887,25 @@ function addMessage(
 
     <span
       class="sender"
-      style="color:${safe(character?.color || "#fff")}">
+      style="color:${safe(
+        character?.color ||
+        "#fff"
+      )}">
 
-      ${safe(character?.name || "النظام")}
+      ${safe(
+        character?.name ||
+        "النظام"
+      )}
 
     </span>
 
     ${
       character
-      ? `<span class="role">
-           ${safe(character.role)}
-         </span>`
+      ? `
+        <span class="role">
+          ${safe(character.role)}
+        </span>
+      `
       : ""
     }
 
@@ -2786,9 +2952,8 @@ function addMessage(
 
     try{
 
-      await navigator.clipboard.writeText(
-        text
-      );
+      await navigator.clipboard
+        .writeText(text);
 
       toast(
         "تم النسخ",
@@ -2841,19 +3006,34 @@ function addMessage(
     <span class="audio-state">
       جاهز
     </span>
+
   `;
 
   const audio={
+
     root:audioBox,
-    play:audioBox.querySelector(".audio-play"),
-    range:audioBox.querySelector(".audio-range"),
-    state:audioBox.querySelector(".audio-state")
+
+    play:
+      audioBox.querySelector(
+        ".audio-play"
+      ),
+
+    range:
+      audioBox.querySelector(
+        ".audio-range"
+      ),
+
+    state:
+      audioBox.querySelector(
+        ".audio-state"
+      )
+
   };
 
   audioButton.onclick=()=>{
-
-    audioBox.classList.toggle("open");
-
+    audioBox.classList.toggle(
+      "open"
+    );
   };
 
   audio.play.onclick=()=>{
@@ -2871,6 +3051,18 @@ function addMessage(
       character,
       audio
     );
+
+  };
+
+  const speedSelect=
+    audioBox.querySelector(
+      ".audio-speed"
+    );
+
+  speedSelect.onchange=()=>{
+
+    $("#globalSpeed").value=
+      speedSelect.value;
 
   };
 
@@ -2897,12 +3089,6 @@ function addMessage(
 
   $("#chat").appendChild(root);
 
-  /*
-     قاعدة التمرير الأساسية:
-     لا ننزل إلا إذا كان المستخدم قريباً من الأسفل
-     قبل وصول الرسالة.
-  */
-
   if(state.scroll.atBottom){
 
     goBottom(false);
@@ -2915,10 +3101,6 @@ function addMessage(
 
   }
 
-  /*
-     الصوت التلقائي
-  */
-
   if(
     auto &&
     state.autoAudio &&
@@ -2926,6 +3108,11 @@ function addMessage(
   ){
 
     audioBox.classList.add("open");
+
+    /*
+       لا نشغل الصوت مباشرة قبل أن
+       تستقر الرسالة في DOM.
+    */
 
     setTimeout(
       ()=>{
@@ -2935,7 +3122,7 @@ function addMessage(
           audio
         );
       },
-      80
+      120
     );
 
   }
@@ -2978,10 +3165,12 @@ function showTyping(character){
 
     <div
       class="avatar"
-      style="background:${safe(character.color)}">
-
-      ${safe(character.name.charAt(0))}
-
+      style="background:${safe(
+        character.color
+      )}">
+      ${safe(
+        character.name.charAt(0)
+      )}
     </div>
 
     <div class="message-body">
@@ -2990,10 +3179,12 @@ function showTyping(character){
 
         <span
           class="sender"
-          style="color:${safe(character.color)}">
-
-          ${safe(character.name)}
-
+          style="color:${safe(
+            character.color
+          )}">
+          ${safe(
+            character.name
+          )}
         </span>
 
       </div>
@@ -3001,11 +3192,9 @@ function showTyping(character){
       <div class="bubble">
 
         <div class="typing">
-
           <i></i>
           <i></i>
           <i></i>
-
         </div>
 
       </div>
@@ -3039,19 +3228,16 @@ function setupScroll(){
     ()=>{
       const el=$("#chat");
 
-      const distance =
+      const distance=
         el.scrollHeight -
         el.scrollTop -
         el.clientHeight;
 
-      state.scroll.atBottom =
-        distance <= 90;
+      state.scroll.atBottom=
+        distance<=90;
 
-      if(state.scroll.atBottom){
-
+      if(state.scroll.atBottom)
         state.scroll.newMessages=0;
-
-      }
 
       updateScrollButton();
 
@@ -3108,7 +3294,7 @@ function updateScrollButton(){
 
     count.style.display="grid";
 
-    count.textContent =
+    count.textContent=
       state.scroll.newMessages>99
       ? "99+"
       : state.scroll.newMessages;
@@ -3123,6 +3309,249 @@ function updateScrollButton(){
 
 
 /* =========================================================
+   INTERVENTION SYSTEM
+========================================================= */
+
+/*
+   أهم جزء جديد.
+
+   تدخل المستخدم يدخل إلى queue.
+   إذا كان نموذج يعمل الآن:
+   - يتم إلغاء طلبه الحالي.
+   - لا تضيع الجلسة.
+   - يصبح التدخل أول عنصر في السياق التالي.
+*/
+
+function submitIntervention(){
+
+  const input=
+    $("#interventionInput");
+
+  const text=
+    input.value.trim();
+
+  if(!text)
+    return;
+
+  state.interventions.push({
+
+    id:
+      Date.now()+"_"+Math.random(),
+
+    text,
+
+    time:Date.now()
+
+  });
+
+  input.value="";
+
+  input.style.height="auto";
+
+  addMessage(
+    {
+      id:"user",
+      name:"أنت",
+      role:"تدخل بشري",
+      color:"#f59e0b"
+    },
+    `**⚡ تدخل المستخدم — أولوية:**\n\n${text}`,
+    false
+  );
+
+  /*
+     إذا كان النموذج يعمل فعلياً،
+     نوقف الطلب حتى لا يستمر في اتجاه
+     لم يعد المستخدم يريده.
+  */
+
+  if(
+    state.running &&
+    state.activeRequestController
+  ){
+
+    state.interventionInterrupt=true;
+
+    try{
+      state.activeRequestController.abort();
+    }catch{}
+
+    setStatus(
+      "تم استلام تدخل المستخدم — أولوية قصوى",
+      "wait"
+    );
+
+  }else{
+
+    toast(
+      "تم إدراج التدخل كأولوية للوكيل التالي",
+      "success"
+    );
+
+  }
+
+}
+
+
+function handleInterventionKey(event){
+
+  if(
+    event.key==="Enter" &&
+    !event.shiftKey
+  ){
+
+    event.preventDefault();
+
+    submitIntervention();
+
+  }
+
+}
+
+
+/*
+   استهلاك التدخلات بترتيب FIFO.
+*/
+
+function consumeInterventions(){
+
+  if(
+    !state.interventions.length
+  )
+    return "";
+
+  const list=
+    state.interventions.splice(
+      0,
+      state.interventions.length
+    );
+
+  return list
+    .map(
+      item=>
+        `### تدخل المستخدم ذو الأولوية\n${item.text}`
+    )
+    .join("\n\n");
+
+}
+
+
+/*
+   هل هناك تدخل جديد؟
+*/
+
+function hasIntervention(){
+
+  return state.interventions.length>0;
+
+}
+
+
+/* =========================================================
+   WAIT
+========================================================= */
+
+async function waitBetweenSpeakers(){
+
+  const seconds=
+    Number(
+      $("#speakerDelay").value
+    );
+
+  if(
+    !Number.isFinite(seconds) ||
+    seconds<=0
+  )
+    return;
+
+  /*
+     إذا كان هناك تدخل أثناء الانتظار
+     لا ننتظر بلا داعٍ؛ التدخل له أولوية.
+  */
+
+  if(hasIntervention())
+    return;
+
+  const waiting=
+    $("#waiting");
+
+  const text=
+    $("#waitingText");
+
+  const progress=
+    $("#waitingProgress");
+
+  waiting.classList.add("show");
+
+  const started=
+    performance.now();
+
+  const duration=
+    seconds*1000;
+
+  while(
+    state.running
+  ){
+
+    /*
+       إيقاف مؤقت = إيقاف ساعة الانتظار أيضاً.
+    */
+
+    if(state.paused){
+
+      await sleep(200);
+
+      continue;
+
+    }
+
+    /*
+       تدخل المستخدم يكسر الانتظار
+       فوراً لأن الأولوية له.
+    */
+
+    if(hasIntervention())
+      break;
+
+    const elapsed=
+      performance.now()-
+      started;
+
+    const remaining=
+      Math.max(
+        0,
+        duration-elapsed
+      );
+
+    const remainingSeconds=
+      Math.ceil(
+        remaining/1000
+      );
+
+    text.textContent=
+      `انتظار ${remainingSeconds} ثانية قبل بدء الوكيل التالي`;
+
+    progress.style.width=
+      Math.min(
+        100,
+        elapsed/duration*100
+      )+"%";
+
+    if(remaining<=0)
+      break;
+
+    await sleep(100);
+
+  }
+
+  waiting.classList.remove("show");
+
+  progress.style.width="0%";
+
+}
+
+
+/* =========================================================
    LAB ENGINE
 ========================================================= */
 
@@ -3132,9 +3561,14 @@ async function startLab(){
     return;
 
   const topic=
-    $("#input").value.trim();
+    $("#input")
+      .value
+      .trim();
 
-  if(!topic && !state.fileText){
+  if(
+    !topic &&
+    !state.file.text
+  ){
 
     toast(
       "اكتب المشكلة أو أرفق ملفاً",
@@ -3153,6 +3587,8 @@ async function startLab(){
 
   state.paused=false;
 
+  state.interventions=[];
+
   state.abortController=
     new AbortController();
 
@@ -3164,41 +3600,73 @@ async function startLab(){
   );
 
   addSystem(
-    `## خطة المختبر
+`## خطة المختبر
 
-**المشكلة:** ${problem}
+**المشكلة:**
+${problem}
 
 **المراحل:**
 
 1. تحليل المشكلة
 2. بناء الفرضيات
-3. جمع الحجج والأدلة
+3. قراءة الأدلة والملف
 4. تصميم الحل
-5. نقد الحل
-6. المفاضلة بين البدائل
+5. النقد والاختبار
+6. المفاضلة
 7. الحكم النهائي
 
-سيتم تنفيذ المراحل بالتتابع، ولن يبدأ الوكيل التالي قبل اكتمال نتيجة الوكيل السابق.`
-  );
+**نظام التوقيت:**
+سيتم انتظار المدة المحددة بين المتحدثين قبل بدء الوكيل التالي.
+
+**أولوية المستخدم:**
+أي تدخل من المستخدم سيصبح أعلى أولوية من السياق السابق.`);
+
+  /*
+     الملف يدخل هنا مرة واحدة في سياق مركزي.
+     ثم يتم إدراجه في كل طلب API.
+  */
 
   let context=
-    `المشكلة:\n${problem}\n\n`;
+`المشكلة الأساسية:
+${problem}
 
-  if(state.fileText){
+`;
 
-    context +=
-      `المستند:\n${
-        state.fileText.slice(0,10000)
-      }\n\n`;
+  if(state.file.text){
+
+    context+=
+`==================================================
+المستند المرفق — يجب على جميع الوكلاء قراءته
+==================================================
+
+اسم الملف:
+${state.file.name}
+
+نوع الملف:
+${state.file.type}
+
+المحتوى الكامل المستخرج:
+${state.file.text}
+
+==================================================
+نهاية المستند
+==================================================
+
+تعليمات:
+هذا المستند جزء أساسي من المناظرة.
+لا تفترض أن الوكيل السابق قرأه نيابة عنك.
+يجب عليك الاستناد إليه مباشرة عندما يكون ذا صلة.
+`;
 
   }
 
   const rounds=
-    Number($("#rounds").value);
+    Number(
+      $("#rounds").value
+    );
 
   /*
-     لا نكرر المحكّم في كل جولة.
-     هو يأتي في النهاية.
+     الشخصيات العملية.
   */
 
   const workingIds=[
@@ -3220,22 +3688,100 @@ async function startLab(){
 
       await pauseIfNeeded();
 
+      /*
+         التدخل قبل بداية الجولة
+      */
+
+      const roundIntervention=
+        consumeInterventions();
+
+      if(roundIntervention){
+
+        context+=
+          "\n\n"+
+          roundIntervention;
+
+        addSystem(
+          "⚡ تم إدخال تدخل المستخدم قبل الجولة التالية، وتم إعطاؤه الأولوية."
+        );
+
+      }
+
       addSystem(
         `### الجولة ${round+1} من ${rounds}`
       );
 
       for(
-        const id of workingIds
+        let index=0;
+        index<workingIds.length &&
+        state.running;
+        index++
       ){
+
+        await pauseIfNeeded();
+
+        /*
+           قبل كل متحدث:
+           إذا كان هناك تدخل جديد، يصبح
+           جزءاً من السياق فوراً.
+        */
+
+        const intervention=
+          consumeInterventions();
+
+        if(intervention){
+
+          context+=
+            "\n\n"+
+            intervention;
+
+          addSystem(
+            "⚡ تدخل المستخدم أصبح أولوية للمتحدث التالي."
+          );
+
+        }
+
+        /*
+           انتظار المتحدث السابق.
+           هذا هو المكان الذي تتحكم فيه خانة
+           0 → 120 ثانية.
+        */
+
+        if(
+          index>0 ||
+          round>0
+        ){
+
+          await waitBetweenSpeakers();
+
+          /*
+             بعد الانتظار قد يكون المستخدم
+             تدخل أثناء العد.
+          */
+
+          const afterWait=
+            consumeInterventions();
+
+          if(afterWait){
+
+            context+=
+              "\n\n"+
+              afterWait;
+
+            addSystem(
+              "⚡ تم تجاوز الانتظار بسبب تدخل المستخدم."
+            );
+
+          }
+
+        }
 
         if(!state.running)
           break;
 
-        await pauseIfNeeded();
-
         const character=
           state.characters.find(
-            c=>c.id===id
+            c=>c.id===workingIds[index]
           );
 
         if(!character)
@@ -3244,7 +3790,7 @@ async function startLab(){
         showTyping(character);
 
         setStatus(
-          `${character.name} يعمل الآن...`,
+          `${character.name} يستجمع الإجابة الآن...`,
           "ok"
         );
 
@@ -3265,15 +3811,66 @@ async function startLab(){
             answer
           );
 
-          context +=
-            `\n\n### ${character.name}\n${answer}`;
+          context+=
+`\n\n==================================================
+${character.name} — الجولة ${round+1}
+==================================================
+
+${answer}`;
+
+          /*
+             نحافظ على الملف كاملاً دائماً،
+             ونقص فقط سجل الحوار القديم إذا أصبح ضخماً.
+          */
 
           context=
-            context.slice(-12000);
+            rebuildContextWithDocument(
+              problem,
+              context
+            );
 
         }catch(error){
 
           removeTyping();
+
+          /*
+             إذا كان سبب الإلغاء هو تدخل المستخدم:
+             لا نعتبره خطأ.
+             نضيف التدخل فوراً ثم نعيد الدورة.
+          */
+
+          if(
+            error.name==="AbortError" &&
+            state.interventionInterrupt
+          ){
+
+            state.interventionInterrupt=false;
+
+            const urgent=
+              consumeInterventions();
+
+            if(urgent){
+
+              context+=
+                "\n\n"+
+                urgent;
+
+              addSystem(
+                "⚡ تم إيقاف الاستجابة الحالية لأن المستخدم تدخل، وسيتم إعطاء تدخله الأولوية."
+              );
+
+            }
+
+            /*
+               لا ننتقل إلى مرحلة عشوائية.
+               سيبدأ الوكيل التالي من السياق الجديد.
+            */
+
+            index--;
+
+            continue;
+
+          }
 
           if(
             error.name==="AbortError"
@@ -3290,7 +3887,28 @@ async function startLab(){
 
     }
 
+    /*
+       الحكم النهائي أيضاً ينتظر المدة.
+    */
+
     if(state.running){
+
+      await waitBetweenSpeakers();
+
+      const urgent=
+        consumeInterventions();
+
+      if(urgent){
+
+        context+=
+          "\n\n"+
+          urgent;
+
+        addSystem(
+          "⚡ تم إدخال آخر تدخل للمستخدم قبل الحكم النهائي."
+        );
+
+      }
 
       const judge=
         state.characters.find(
@@ -3299,39 +3917,61 @@ async function startLab(){
 
       if(judge){
 
-        await pauseIfNeeded();
-
         showTyping(judge);
 
         setStatus(
-          "المحكّم يراجع جميع النتائج...",
+          "المحكّم يستجمع الحكم النهائي...",
           "ok"
         );
 
-        const answer=
-          await callModel(
+        try{
+
+          const answer=
+            await callModel(
+              judge,
+              problem,
+              context,
+              rounds,
+              true
+            );
+
+          removeTyping();
+
+          addMessage(
             judge,
-            problem,
-            context,
-            rounds
+            answer
           );
 
-        removeTyping();
+        }catch(error){
 
-        addMessage(
-          judge,
-          answer
-        );
+          removeTyping();
+
+          if(
+            error.name!=="AbortError"
+          ){
+
+            addSystem(
+              `❌ تعذر الوصول إلى الحكم النهائي: ${error.message}`
+            );
+
+          }
+
+        }
 
       }
 
-      addSystem(
-        `## انتهى المختبر
+      if(state.running){
 
-تم تنفيذ الخطة كاملة.
+        addSystem(
+`## انتهى المختبر
 
-**الخطوة التالية:** استخدم الحكم النهائي باعتباره أساس القرار، ثم اختبر أول إجراء عملي قابل للقياس.`
-      );
+تم تنفيذ مراحل التحليل.
+
+**القاعدة العملية:**
+الحكم النهائي لا يُعتبر بديلاً عن الاختبار الواقعي؛ ابدأ بأول إجراء قابل للقياس ثم راقب النتيجة.`
+        );
+
+      }
 
     }
 
@@ -3359,14 +3999,15 @@ async function startLab(){
 
 
 /* =========================================================
-   MODEL
+   MODEL REQUEST
 ========================================================= */
 
 async function callModel(
   character,
   problem,
   context,
-  round
+  round,
+  finalJudge=false
 ){
 
   if(!state.settings.apiUrl){
@@ -3376,6 +4017,11 @@ async function callModel(
     );
 
   }
+
+  /*
+     الملف موجود داخل context دائماً.
+     لذلك كل وكيل يستلمه بنفسه.
+  */
 
   const system=`
 
@@ -3396,108 +4042,262 @@ ${problem}
 الجولة:
 ${round+1}
 
-سياق العمل السابق:
-${context.slice(-11000)}
+أنت مسؤول عن قراءة السياق التالي بنفسك.
 
-القواعد:
+==================================================
+السياق المركزي
+==================================================
+
+${context}
+
+==================================================
+قواعد صارمة
+==================================================
+
 - لا تخترع معلومات.
-- ميّز بين الحقيقة والافتراض.
-- لا تكرر كلام الوكلاء الآخرين بلا إضافة.
-- إذا كانت المعلومات غير كافية فاذكر ذلك.
-- قدم تحليلاً عملياً.
+- لا تعتبر كلام وكيل سابق حقيقة مطلقة.
+- ميّز بين الحقيقة والفرضية والاستنتاج.
+- إذا كان هناك ملف مرفق، اقرأه واستخرج ما تحتاجه منه.
+- لا تقل إنك لا ترى الملف إذا كان محتواه موجوداً في السياق.
+- لا تتجاهل تدخل المستخدم.
+- أي فقرة تبدأ بـ "تدخل المستخدم ذو الأولوية" تعتبر توجيهاً أعلى أولوية.
+- إذا غيّر المستخدم الموضوع، اتبع المستخدم وليس الموضوع القديم.
+- لا تكرر كلام الوكلاء بلا إضافة.
+- إذا كانت البيانات غير كافية فاذكر ذلك.
+- قدم مساهمة عملية ومحددة.
 - استخدم العربية.
+
 `;
 
-  const response=
-    await fetch(
-      state.settings.apiUrl +
-      "/v1/chat/completions",
-      {
-        method:"POST",
+  const controller=
+    new AbortController();
 
-        headers:{
-          "Content-Type":
-            "application/json",
+  state.activeRequestController=
+    controller;
 
-          ...(state.settings.apiKey
-            ? {
-                Authorization:
-                  "Bearer " +
-                  state.settings.apiKey
-              }
-            : {})
-        },
+  /*
+     إذا أوقف المختبر كله،
+     أوقف الطلب أيضاً.
+  */
 
-        body:JSON.stringify({
-
-          model:
-            state.settings.model,
-
-          messages:[
-
-            {
-              role:"system",
-              content:system
-            },
-
-            {
-              role:"user",
-              content:
-                "قدم مساهمتك الآن."
-            }
-
-          ],
-
-          temperature:
-            character.id==="judge"
-            ? .15
-            : .4,
-
-          max_tokens:100
-
-        }),
-
-        signal:
-          state.abortController.signal
-
-      }
-    );
-
-  if(!response.ok){
-
-    let message=
-      `HTTP ${response.status}`;
+  const stopListener=()=>{
 
     try{
-
-      const data=
-        await response.json();
-
-      message=
-        data?.error?.message ||
-        message;
-
+      controller.abort();
     }catch{}
 
-    throw new Error(message);
+  };
+
+  /*
+     لا يوجد AbortSignal مركب في المتصفحات القديمة،
+     لذلك نراقب signal الأساسي يدوياً.
+  */
+
+  if(state.abortController){
+
+    if(
+      state.abortController.signal.aborted
+    ){
+
+      controller.abort();
+
+    }else{
+
+      state.abortController.signal
+        .addEventListener(
+          "abort",
+          stopListener,
+          {once:true}
+        );
+
+    }
 
   }
 
-  const data=
-    await response.json();
+  try{
 
-  const answer=
-    data?.choices?.[0]?.message?.content;
+    const response=
+      await fetch(
+        state.settings.apiUrl +
+        "/v1/chat/completions",
+        {
 
-  if(!answer){
+          method:"POST",
 
-    throw new Error(
-      "النموذج لم يرجع نصاً."
-    );
+          headers:{
+            "Content-Type":
+              "application/json",
+
+            ...(state.settings.apiKey
+              ? {
+                  Authorization:
+                    "Bearer "+
+                    state.settings.apiKey
+                }
+              : {})
+          },
+
+          body:
+            JSON.stringify({
+
+              model:
+                state.settings.model,
+
+              messages:[
+
+                {
+                  role:"system",
+                  content:system
+                },
+
+                {
+                  role:"user",
+                  content:
+                    finalJudge
+                    ? "أصدر الحكم النهائي الآن."
+                    : "قدم مساهمتك الآن."
+                }
+
+              ],
+
+              temperature:
+                finalJudge
+                ? .15
+                : .4,
+
+              /*
+                 100 كان قليلاً جداً.
+                 نستخدم 900 حتى يستطيع الوكيل
+                 تحليل الملف وإعطاء نتيجة حقيقية.
+              */
+
+              max_tokens:900
+
+            }),
+
+          signal:
+            controller.signal
+
+        }
+      );
+
+    if(!response.ok){
+
+      let message=
+        `HTTP ${response.status}`;
+
+      try{
+
+        const data=
+          await response.json();
+
+        message=
+          data?.error?.message ||
+          message;
+
+      }catch{}
+
+      throw new Error(message);
+
+    }
+
+    const data=
+      await response.json();
+
+    const answer=
+      data?.choices?.[0]?.message?.content;
+
+    if(!answer){
+
+      throw new Error(
+        "النموذج لم يرجع نصاً."
+      );
+
+    }
+
+    return answer;
+
+  }finally{
+
+    if(
+      state.activeRequestController===
+      controller
+    ){
+
+      state.activeRequestController=null;
+
+    }
+
+    if(state.abortController){
+
+      try{
+
+        state.abortController.signal
+          .removeEventListener(
+            "abort",
+            stopListener
+          );
+
+      }catch{}
+
+    }
 
   }
 
-  return answer;
+}
+
+
+/* =========================================================
+   CONTEXT
+========================================================= */
+
+function rebuildContextWithDocument(
+  problem,
+  context
+){
+
+  const documentPart=
+    state.file.text
+      ? `
+
+==================================================
+المستند المرفق — ثابت لجميع الوكلاء
+==================================================
+
+اسم الملف:
+${state.file.name}
+
+نوع الملف:
+${state.file.type}
+
+${state.file.text}
+
+==================================================
+نهاية المستند
+==================================================
+`
+      : "";
+
+  /*
+     آخر 18000 حرف من الحوار
+     + المستند الكامل.
+  */
+
+  const cleanConversation=
+    context.slice(-18000);
+
+  return `
+المشكلة:
+${problem}
+
+${documentPart}
+
+==================================================
+سجل الحوار الأخير
+==================================================
+
+${cleanConversation}
+`;
 
 }
 
@@ -3513,12 +4313,7 @@ async function pauseIfNeeded(){
     state.running
   ){
 
-    await new Promise(
-      resolve=>setTimeout(
-        resolve,
-        200
-      )
-    );
+    await sleep(200);
 
   }
 
@@ -3533,10 +4328,11 @@ function togglePause(){
   state.paused=
     !state.paused;
 
-  $("#pauseButton").textContent=
-    state.paused
-    ? "▶ استكمال"
-    : "⏸ إيقاف مؤقت";
+  $("#pauseButton")
+    .textContent=
+      state.paused
+        ? "▶ استكمال"
+        : "⏸ إيقاف مؤقت";
 
   setStatus(
     state.paused
@@ -3557,10 +4353,23 @@ function abortLab(){
   state.paused=false;
 
   try{
-    state.abortController?.abort();
+
+    state.abortController
+      ?.abort();
+
+  }catch{}
+
+  try{
+
+    state.activeRequestController
+      ?.abort();
+
   }catch{}
 
   removeTyping();
+
+  $("#waiting")
+    .classList.remove("show");
 
   setStatus(
     "تم إيقاف المختبر",
@@ -3572,8 +4381,33 @@ function abortLab(){
 }
 
 
+function finishLab(){
+
+  state.running=false;
+
+  state.paused=false;
+
+  state.abortController=null;
+
+  state.activeRequestController=null;
+
+  state.interventionInterrupt=false;
+
+  $("#waiting")
+    .classList.remove("show");
+
+  setRunningUI(false);
+
+  setStatus(
+    "جاهز — المختبر متاح لمشكلة جديدة",
+    "ok"
+  );
+
+}
+
+
 /* =========================================================
-   UI STATE
+   RUNNING UI
 ========================================================= */
 
 function setRunningUI(running){
@@ -3591,37 +4425,20 @@ function setRunningUI(running){
       ? "inline-flex"
       : "none";
 
-  $("#sendButton").classList.toggle(
-    "stop",
-    running
-  );
-
-}
-
-
-function finishLab(){
-
-  state.running=false;
-
-  state.paused=false;
-
-  state.abortController=null;
-
-  setRunningUI(false);
-
-  setStatus(
-    "جاهز — المختبر متاح لمشكلة جديدة",
-    "ok"
-  );
+  $("#sendButton")
+    .classList.toggle(
+      "stop",
+      running
+    );
 
 }
 
 
 /* =========================================================
-   FILE
+   FILE ENGINE
 ========================================================= */
 
-function loadFile(input){
+async function loadFile(input){
 
   const file=
     input.files?.[0];
@@ -3629,15 +4446,72 @@ function loadFile(input){
   if(!file)
     return;
 
-  const reader=
-    new FileReader();
+  try{
 
-  reader.onload=event=>{
+    setStatus(
+      `جاري قراءة الملف: ${file.name}`,
+      "wait"
+    );
 
-    state.fileText=
-      String(
-        event.target.result
-      ).slice(0,12000);
+    let text="";
+
+    if(
+      file.type==="application/pdf" ||
+      file.name
+        .toLowerCase()
+        .endsWith(".pdf")
+    ){
+
+      text=
+        await extractPDF(file);
+
+    }else{
+
+      text=
+        await readTextFile(file);
+
+    }
+
+    text=
+      String(text || "").trim();
+
+    if(!text){
+
+      throw new Error(
+        "لم يتم استخراج نص من الملف."
+      );
+
+    }
+
+    /*
+       لا نضع حد 12000 هنا.
+       الملف يجب أن يكون متاحاً بالكامل.
+       يمكن قصه فقط عند تجاوز حدود API
+       في طبقة الطلب إذا لزم.
+    */
+
+    state.file={
+
+      name:file.name,
+
+      type:
+        file.type ||
+        file.name
+          .split(".")
+          .pop()
+          .toLowerCase(),
+
+      text
+
+    };
+
+    const status=
+      $("#fileStatus");
+
+    status.classList.add("show");
+
+    status.textContent=
+      `📎 ${file.name} — تمت القراءة بالكامل، وسيتم إرساله لجميع الوكلاء ضمن سياق المناظرة.`;
 
     setStatus(
       `تم تحميل الملف: ${file.name}`,
@@ -3645,22 +4519,123 @@ function loadFile(input){
     );
 
     toast(
-      "تم تحميل الملف",
+      "تم إدخال الملف في سياق جميع الوكلاء",
       "success"
     );
 
-  };
+  }catch(error){
 
-  reader.onerror=()=>{
+    state.file={
+      name:"",
+      type:"",
+      text:""
+    };
 
-    toast(
+    $("#fileStatus")
+      .classList.remove("show");
+
+    setStatus(
       "تعذر قراءة الملف",
       "error"
     );
 
-  };
+    toast(
+      "خطأ في قراءة الملف: "+
+      error.message,
+      "error"
+    );
 
-  reader.readAsText(file);
+  }finally{
+
+    input.value="";
+
+  }
+
+}
+
+
+function readTextFile(file){
+
+  return new Promise(
+    (resolve,reject)=>{
+
+      const reader=
+        new FileReader();
+
+      reader.onload=e=>
+        resolve(
+          String(
+            e.target.result || ""
+          )
+        );
+
+      reader.onerror=()=>
+        reject(
+          new Error(
+            "تعذر قراءة الملف النصي."
+          )
+        );
+
+      reader.readAsText(file);
+
+    }
+  );
+
+}
+
+
+/*
+   PDF.js يعمل في المتصفح.
+*/
+
+async function extractPDF(file){
+
+  const pdfjs=
+    await import(
+      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs"
+    );
+
+  pdfjs.GlobalWorkerOptions.workerSrc=
+    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs";
+
+  const buffer=
+    await file.arrayBuffer();
+
+  const pdf=
+    await pdfjs.getDocument({
+      data:buffer
+    }).promise;
+
+  const pages=[];
+
+  for(
+    let pageNumber=1;
+    pageNumber<=pdf.numPages;
+    pageNumber++
+  ){
+
+    const page=
+      await pdf.getPage(
+        pageNumber
+      );
+
+    const content=
+      await page.getTextContent();
+
+    const text=
+      content.items
+        .map(
+          item=>item.str || ""
+        )
+        .join(" ");
+
+    pages.push(
+      `\n\n--- الصفحة ${pageNumber} ---\n${text}`
+    );
+
+  }
+
+  return pages.join("\n");
 
 }
 
@@ -3671,39 +4646,50 @@ function loadFile(input){
 
 async function testAudio(){
 
-  const testCharacter={
-    name:"اختبار",
-    voice:state.settings.voice,
-    speed:1
-  };
-
   const audio={
-    play:document.createElement("button"),
-    range:document.createElement("input"),
-    state:document.createElement("span")
+
+    play:
+      document.createElement(
+        "button"
+      ),
+
+    range:
+      document.createElement(
+        "input"
+      ),
+
+    state:
+      document.createElement(
+        "span"
+      )
+
   };
 
-  audio.state.textContent=
-    "اختبار...";
-
-  $("#diagnostic").textContent=
-    "جاري اختبار Piper ثم المتصفح...";
+  $("#diagnostic")
+    .textContent=
+      "جاري اختبار الصوت...";
 
   try{
 
     await speak(
       "هذا اختبار للصوت. إذا سمعت هذه الجملة فإن نظام الصوت يعمل.",
-      testCharacter,
+      {
+        name:"اختبار",
+        voice:
+          state.settings.voice
+      },
       audio
     );
 
-    $("#diagnostic").textContent=
-      "بدأ اختبار الصوت. تحقق من السماعات.";
+    $("#diagnostic")
+      .textContent=
+        "بدأ اختبار الصوت.";
 
   }catch(error){
 
-    $("#diagnostic").textContent=
-      error.message;
+    $("#diagnostic")
+      .textContent=
+        error.message;
 
   }
 
@@ -3714,28 +4700,30 @@ async function testModel(){
 
   if(!state.settings.apiUrl){
 
-    $("#diagnostic").textContent=
-      "أدخل عنوان API أولاً.";
+    $("#diagnostic")
+      .textContent=
+        "أدخل عنوان API أولاً.";
 
     return;
 
   }
 
-  $("#diagnostic").textContent=
-    "جاري اختبار النموذج...";
+  $("#diagnostic")
+    .textContent=
+      "جاري اختبار النموذج...";
 
   try{
 
     const response=
       await fetch(
-        state.settings.apiUrl +
+        state.settings.apiUrl+
         "/v1/models",
         {
           headers:
             state.settings.apiKey
             ? {
                 Authorization:
-                  "Bearer " +
+                  "Bearer "+
                   state.settings.apiKey
               }
             : {}
@@ -3747,13 +4735,15 @@ async function testModel(){
         `HTTP ${response.status}`
       );
 
-    $("#diagnostic").textContent=
-      "✓ الاتصال بالنموذج يعمل.";
+    $("#diagnostic")
+      .textContent=
+        "✓ الاتصال بالنموذج يعمل.";
 
   }catch(error){
 
-    $("#diagnostic").textContent=
-      "✕ " + error.message;
+    $("#diagnostic")
+      .textContent=
+        "✕ "+error.message;
 
   }
 
@@ -3761,7 +4751,7 @@ async function testModel(){
 
 
 /* =========================================================
-   SETTINGS / DRAWERS
+   DRAWERS
 ========================================================= */
 
 function openSettings(){
@@ -3776,7 +4766,7 @@ function openSettings(){
 
 function closeDrawer(id){
 
-  $("#" + id)
+  $("#"+id)
     ?.classList.remove("show");
 
 }
@@ -3824,7 +4814,17 @@ function clearChat(){
   stopAudio();
 
   state.messages=[];
-  state.fileText="";
+
+  state.file={
+    name:"",
+    type:"",
+    text:""
+  };
+
+  state.interventions=[];
+
+  $("#fileStatus")
+    .classList.remove("show");
 
   $("#chat").innerHTML=`
 
@@ -3852,9 +4852,11 @@ function clearChat(){
   `;
 
   state.scroll.atBottom=true;
+
   state.scroll.newMessages=0;
 
   updateScrollButton();
+
   updateMessageCount();
 
 }
@@ -3863,8 +4865,24 @@ function clearChat(){
 function exportSession(){
 
   const data={
-    date:new Date().toISOString(),
-    messages:state.messages
+
+    date:
+      new Date().toISOString(),
+
+    problem:
+      $("#input").value,
+
+    file:{
+      name:
+        state.file.name,
+
+      type:
+        state.file.type
+    },
+
+    messages:
+      state.messages
+
   };
 
   const blob=
@@ -3895,7 +4913,9 @@ function exportSession(){
   a.click();
 
   setTimeout(
-    ()=>URL.revokeObjectURL(url),
+    ()=>{
+      URL.revokeObjectURL(url);
+    },
     1000
   );
 
@@ -3908,20 +4928,39 @@ function exportSession(){
 
 function setupTextarea(){
 
-  $("#input").addEventListener(
-    "input",
-    ()=>{
-      const el=$("#input");
+  $("#input")
+    .addEventListener(
+      "input",
+      ()=>{
+        const el=
+          $("#input");
 
-      el.style.height="auto";
+        el.style.height="auto";
 
-      el.style.height=
-        Math.min(
-          el.scrollHeight,
-          140
-        )+"px";
-    }
-  );
+        el.style.height=
+          Math.min(
+            el.scrollHeight,
+            140
+          )+"px";
+      }
+    );
+
+  $("#interventionInput")
+    .addEventListener(
+      "input",
+      ()=>{
+        const el=
+          $("#interventionInput");
+
+        el.style.height="auto";
+
+        el.style.height=
+          Math.min(
+            el.scrollHeight,
+            100
+          )+"px";
+      }
+    );
 
 }
 
@@ -3951,12 +4990,11 @@ function setStatus(
   type=""
 ){
 
-  $("#statusText").textContent=text;
+  $("#statusText")
+    .textContent=text;
 
-  const dot=$("#statusDot");
-
-  dot.className=
-    "status-dot " +
+  $("#statusDot").className=
+    "status-dot "+
     (type || "");
 
 }
@@ -3964,8 +5002,9 @@ function setStatus(
 
 function updateMessageCount(){
 
-  $("#messageCount").textContent=
-    `${state.messages.length} رسالة`;
+  $("#messageCount")
+    .textContent=
+      `${state.messages.length} رسالة`;
 
 }
 
@@ -3976,30 +5015,93 @@ function updateMessageCount(){
 
 function $(selector){
 
-  return document.querySelector(selector);
+  return document.querySelector(
+    selector
+  );
+
+}
+
+
+function sleep(ms){
+
+  return new Promise(
+    resolve=>
+      setTimeout(
+        resolve,
+        ms
+      )
+  );
 
 }
 
 
 function safe(value){
 
-  return String(value ?? "")
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;")
-    .replace(/'/g,"&#039;");
+  return String(
+    value ?? ""
+  )
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+    .replace(
+      /</g,
+      "&lt;"
+    )
+    .replace(
+      />/g,
+      "&gt;"
+    )
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+    .replace(
+      /'/g,
+      "&#039;"
+    );
+
+}
+
+
+function safeAttr(value){
+
+  return String(
+    value ?? ""
+  )
+    .replace(
+      /\\/g,
+      "\\\\"
+    )
+    .replace(
+      /'/g,
+      "\\'"
+    );
 
 }
 
 
 function cleanSpeechText(text){
 
-  return String(text || "")
-    .replace(/```[\s\S]*?```/g,"")
-    .replace(/[#*_>`]/g,"")
-    .replace(/\[([^\]]+)\]\([^)]+\)/g,"$1")
-    .replace(/\s+/g," ")
+  return String(
+    text || ""
+  )
+    .replace(
+      /```[\s\S]*?```/g,
+      ""
+    )
+    .replace(
+      /[#*_>`]/g,
+      ""
+    )
+    .replace(
+      /\[([^\]]+)\]\([^)]+\)/g,
+      "$1"
+    )
+    .replace(
+      /\s+/g,
+      " "
+    )
     .trim()
     .slice(0,12000);
 
@@ -4017,18 +5119,24 @@ function setSelectValue(
   const exists=
     [...select.options]
       .some(
-        option=>option.value===value
+        option=>
+          option.value===value
       );
 
   if(!exists){
 
     const option=
-      document.createElement("option");
+      document.createElement(
+        "option"
+      );
 
     option.value=value;
+
     option.textContent=value;
 
-    select.appendChild(option);
+    select.appendChild(
+      option
+    );
 
   }
 
@@ -4042,12 +5150,14 @@ function toast(
   type=""
 ){
 
-  const el=$("#toast");
+  const el=
+    $("#toast");
 
-  el.textContent=message;
+  el.textContent=
+    message;
 
   el.className=
-    "toast show " +
+    "toast show "+
     type;
 
   clearTimeout(
@@ -4057,7 +5167,9 @@ function toast(
   toast.timer=
     setTimeout(
       ()=>{
-        el.classList.remove("show");
+        el.classList.remove(
+          "show"
+        );
       },
       2800
     );
@@ -4066,7 +5178,7 @@ function toast(
 
 
 /* =========================================================
-   LOAD AVAILABLE VOICES WHEN SETTINGS ARE OPENED
+   VOICE DISCOVERY
 ========================================================= */
 
 async function discoverVoices(){
@@ -4076,8 +5188,11 @@ async function discoverVoices(){
       .replace(/\/+$/,"");
 
   const candidates=[
+
     `${base}/api/voices`,
+
     `${base}/voices`
+
   ];
 
   for(
@@ -4126,16 +5241,33 @@ async function discoverVoices(){
 
       $("#voice").innerHTML="";
 
+      $("#characterVoice").innerHTML="";
+
       voices.forEach(v=>{
 
-        const option=
-          document.createElement("option");
+        const a=
+          document.createElement(
+            "option"
+          );
 
-        option.value=v;
-        option.textContent=v;
+        a.value=v;
+
+        a.textContent=v;
 
         $("#voice")
-          .appendChild(option);
+          .appendChild(a);
+
+        const b=
+          document.createElement(
+            "option"
+          );
+
+        b.value=v;
+
+        b.textContent=v;
+
+        $("#characterVoice")
+          .appendChild(b);
 
       });
 
@@ -4144,8 +5276,14 @@ async function discoverVoices(){
         state.settings.voice
       );
 
-      $("#diagnostic").textContent=
-        `تم اكتشاف ${voices.length} صوتاً.`;
+      setSelectValue(
+        $("#characterVoice"),
+        state.settings.voice
+      );
+
+      $("#diagnostic")
+        .textContent=
+          `تم اكتشاف ${voices.length} صوتاً.`;
 
       return;
 
@@ -4153,14 +5291,15 @@ async function discoverVoices(){
 
   }
 
-  $("#diagnostic").textContent=
-    "لم يتم اكتشاف قائمة الأصوات تلقائياً. يمكنك كتابة اسم الصوت الموجود في خدمتك.";
+  $("#diagnostic")
+    .textContent=
+      "لم يتم اكتشاف قائمة الأصوات تلقائياً.";
 
 }
 
 
 /* =========================================================
-   OPEN SETTINGS HOOK
+   SETTINGS OPEN HOOK
 ========================================================= */
 
 $("#settingsOverlay")
@@ -4169,7 +5308,8 @@ $("#settingsOverlay")
     ()=>{
       if(
         $("#settingsOverlay")
-          .classList.contains("show")
+          .classList
+          .contains("show")
       ){
 
         discoverVoices();
